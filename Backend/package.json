@@ -1,0 +1,23 @@
+{
+  "name": "smart-home-energy",
+  "version": "1.0.0",
+  "description": "Overview:\r  A platform for homeowners to track and optimize energy consumption across their smart devices.\r  Addresses sustainability concerns with a focus on energy efficiency and cost-saving.",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
