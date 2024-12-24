@@ -1,0 +1,9 @@
+1) Install Jest and Supertest:
+npm install --save-dev jest supertest
+
+NB: 
+Jest: For writing and running tests.
+Supertest: To test HTTP endpoints.
+
+2. Create jest.config.js
+3. Create setup.js

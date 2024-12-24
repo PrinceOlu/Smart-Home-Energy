@@ -2,6 +2,7 @@ const jwt = (require('jsonwebtoken'));
 
 const authenticateUser = (req, res, next) => {
     try {
+         
         // Get the token from cookies
         const token = req.cookies.auth_token;
         if (!token) {

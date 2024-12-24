@@ -63,24 +63,43 @@ Bootstrap: For consistent styling and responsiveness.
 3) Axios: For API calls between frontend and backend.
 
 I) Project Structure
-backend
+backend/
 ├── config/
-│   └── db.js      
+│   └── db.js                  # Database connection
 ├── controllers/
-│   ├── authController.js
-│   ├── deviceController.js
-│   └── budgetController.js
+│   ├── userController.js      # Auth-related logic
+│   ├── deviceController.js    # Device-related logic
+│   └── budgetController.js    # Budget-related logic
 ├── models/
-│   ├── User.js
-│   ├── Device.js
-│   └── Budget.js
+│   ├── UserModel.js                # User schema/model
+│   ├── Device.js              # Device schema/model
+│   └── Budget.js              # Budget schema/model
 ├── routes/
-│   ├── authRoutes.js
-│   ├── deviceRoutes.js
-│   └── budgetRoutes.js
+│   ├── userRoutes.js          # Routes for authentication
+│   ├── deviceRoutes.js        # Routes for devices
+│   └── budgetRoutes.js        # Routes for budgets
 ├── middleware/
-│   └── authMiddleware.js
+│   └── authenticateUser.js      # Authentication middleware
+├── tests/
+│   ├── unit/                  # Unit test cases
+│   │   ├── controllers/       # Tests for controllers
+│   │   │   ├── userController.test.js
+│   │   │   ├── deviceController.test.js
+│   │   │   └── budgetController.test.js
+│   │   ├── models/            # Tests for models
+│   │   │   ├── UserModel.test.js
+│   │   │   ├── Device.test.js
+│   │   │   └── Budget.test.js
+|   |   |---middleware
+|   |   |   |--- authenticateUser.test
+│   ├── integration/           # Integration test cases
+│   │   ├── routes/
+│   │   │   ├── userRoutes.test.js
+│   │   │   ├── deviceRoutes.test.js
+│   │   │   └── budgetRoutes.test.js
+│   ├── setup.js               # Test setup script (optional)
+│   └── jest.config.js         # Jest configuration
 ├── .env
-├── server.js
+├── server.js                  # Main application entry point
 ├── package.json
 └── README.md
