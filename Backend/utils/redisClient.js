@@ -4,7 +4,7 @@ const Redis = require("ioredis");
 const redis = new Redis({
     host: 'localhost',   // Redis server address (use your Redis server URL if remote)
     port: 6379,          // Redis port
-    password: 'prince@1981',        // Optional: if your Redis server requires authentication
+    password: '',        // Optional: if your Redis server requires authentication
     db: 0                // Optional: Redis database index
 });
 

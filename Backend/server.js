@@ -3,7 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const dbConfig = require("./config/dbConfig");
 const userRouter = require("./routes/userRoute");
+const deviceRouter = require("./routes/deviceRoutes");
 const cookieParser = require('cookie-parser');
+const budgetRoute = require('./routes/budgetRoutes');
 const app = express(); // Initialize Express app
 // Define the port
 const port = process.env.PORT || 5000;
@@ -17,6 +19,10 @@ app.use(cookieParser());
 
 // user routes with a base path
 app.use("/api/users", userRouter);
+// Device routes
+app.use("/api/devices", deviceRouter);
+// budget routes
+app.use("/api/budgets", budgetRoute);
 
 // Start the server
 app.listen(port, () => {

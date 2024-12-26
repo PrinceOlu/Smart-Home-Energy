@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/userController");
-const authenticateUser = require("../Middleware/authenticateUser");
+const userAuthentication = require("../Middleware/userAuthentication");
 
 // User routes to register a new user (does not require authentication)
 router.post("/register", userController.registerUser);
@@ -10,6 +10,6 @@ router.post("/register", userController.registerUser);
 router.post("/login", userController.loginUser);
 
 // User routes to logout a user (requires authentication)
-router.post("/logout", authenticateUser, userController.logoutUser);
+router.post("/logout", userAuthentication, userController.logoutUser);
 
 module.exports = router;

@@ -1,112 +1,112 @@
 const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const redisClient = require("../utils/redisClient"); // Import Redis client
+const redisClient = require("../utils/redisClient");
+
+// Common cookie configuration
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 3600000, // 1 hour in milliseconds
+};
 
 // Function to register a new user
 const registerUser = async (req, res) => {
     try {
-        // Destructure the request body
         const { name, email, password } = req.body;
+
+        // Check if email already exists
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
 
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user
+        // Create and save the new user
         const user = new userModel({ name, email, password: hashedPassword });
-
-        // Save the user
         await user.save();
 
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
-        if (error.code === 11000) {
-            res.status(400).json({ message: "Email already exists" });
-        } else {
-            res.status(500).json({ error: error.message });
-        }
+        console.error("Error registering user:", error);
+        res.status(500).json({ error: error.message });
     }
 };
 
 // Function to login a user
 const loginUser = async (req, res) => {
     try {
-        // Destructure the request body
         const { email, password } = req.body;
+        const redisKey = `user:${email}`; // Updated Redis key format
 
-        // First, check if user data is cached in Redis
-        const cachedUser = await redisClient.get(email);
-
+        // Check Redis cache
+        const cachedUser = await redisClient.get(redisKey);
         if (cachedUser) {
-            // Cache hit: Return the cached data
-            console.log('Cache hit for user:', email);
+            console.log("Cache hit for user:", email);
             const user = JSON.parse(cachedUser);
-            const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+            const token = jwt.sign({ userId: user._id, email }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-            res.cookie('auth_token', token, {
-                httpOnly: true,   // Cannot be accessed by JavaScript (safer)
-                secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
-                maxAge: 3600000,  // Cookie expires in 1 hour (same as JWT expiration)
-            });
-
-            return res.status(200).json({
-                message: "User logged in successfully (from cache)",
-                token: token,
-            });
+            res.cookie("auth_token", token, cookieOptions);
+            return res.status(200).json({ message: "User logged in successfully (from cache)", token });
         }
 
-        // Cache miss: User data not found in Redis, so fetch from the database
+        // Fetch user from database
         const user = await userModel.findOne({ email });
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Check if the password is correct
+        // Verify password
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Generate a JWT token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // Generate JWT and cache user data
+        const token = jwt.sign({ userId: user._id, email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        await redisClient.setex(redisKey, 3600, JSON.stringify(user)); // Use the updated key format
 
-        // Cache the user data in Redis for 1 hour (expire time = 3600 seconds)
-        await redisClient.setex(email, 3600, JSON.stringify(user));
-
-        // Send the token in an HTTP-only cookie
-        res.cookie('auth_token', token, {
-            httpOnly: true,   // Cannot be accessed by JavaScript (safer)
-            secure: process.env.NODE_ENV === 'production',  // Use secure cookies in production
-            maxAge: 3600000,  // Cookie expires in 1 hour (same as JWT expiration)
-        });
-
-        res.status(200).json({
-            message: "User logged in successfully",
-            token: token,
-        });
+        res.cookie("auth_token", token, cookieOptions);
+        res.status(200).json({ message: "User logged in successfully", token });
     } catch (error) {
-        console.error(error);
+        console.error("Error during login:", error);
         res.status(500).json({ error: error.message });
     }
 };
 
 // Function to logout a user
-const logoutUser = (req, res) => {
-    const { email } = req.body; // Assuming email is passed in the request body
-
-    // Clear the auth_token cookie
-    res.clearCookie('auth_token');
-
-    // Invalidate the cached user data in Redis
-    redisClient.del(email, (err, response) => {
-        if (err) {
-            console.error('Error invalidating cache:', err);
-        } else {
-            console.log(`Cache invalidated for ${email}`);
+const logoutUser = async (req, res) => {
+    try {
+        const token = req.cookies.auth_token;
+        if (!token) {
+            return res.status(400).json({ message: "User not logged in" });
         }
-    });
 
-    res.status(200).json({ message: "User logged out successfully" });
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const { email } = decoded;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email not found in token" });
+        }
+
+        const redisKey = `user:${email}`; // Updated Redis key format
+
+        // Clear the auth_token cookie and invalidate cache
+        res.clearCookie("auth_token");
+        const cacheResult = await redisClient.del(redisKey); // Use the updated key format
+        if (cacheResult === 1) {
+            console.log(`Cache invalidated for ${redisKey}`);
+        } else {
+            console.warn(`No cache found for ${redisKey}`);
+        }
+
+        res.status(200).json({ message: "User logged out successfully" });
+    } catch (error) {
+        console.error("Error during logout:", error);
+        res.status(500).json({ error: error.message });
+    }
 };
 
 module.exports = { registerUser, loginUser, logoutUser };

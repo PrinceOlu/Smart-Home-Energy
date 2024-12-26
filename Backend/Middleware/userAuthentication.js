@@ -1,6 +1,6 @@
 const jwt = (require('jsonwebtoken'));
 
-const authenticateUser = (req, res, next) => {
+const userAuthentication = (req, res, next) => {
     try {
          
         // Get the token from cookies
@@ -17,4 +17,4 @@ const authenticateUser = (req, res, next) => {
     }
 };
 
-module.exports = authenticateUser;
+module.exports = userAuthentication;

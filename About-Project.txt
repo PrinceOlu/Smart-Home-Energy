@@ -1,6 +1,13 @@
 A) Overview:
 A platform for homeowners to track and optimize energy consumption across their smart devices.
 
+Budgets will:
+
+Allow users to set a monthly energy consumption limit.
+Track total energy usage across devices.
+Trigger alerts when the budget limit is exceeded.
+Store historical budgets and usage data for reporting.
+
 B) Core Features:
 1) Device Monitoring: Track energy usage of individual appliances.
 2) Budgeting: Set monthly energy budgets and get alerts when exceeding them.
@@ -48,7 +55,7 @@ H) Set Up the Tech Stack
 i) HTML/CSS/JavaScript: For the basic structure and styling.
 ii) React: Component-based UI framework for dynamic interfaces.
 iii) React Query: Efficient server state management.
-Bootstrap: For consistent styling and responsiveness.
+iv) Bootstrap: For consistent styling and responsiveness.
 
 2) Backend:
 1) Node.js: Server-side runtime for handling requests.
