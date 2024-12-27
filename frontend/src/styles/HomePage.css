@@ -31,4 +31,21 @@ h2 {
   button.variant-link:hover {
     text-decoration: underline;
   }
-  
+  /* General styles for the image */
+.image-container {
+  text-align: center;
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+/* Center form vertically on mobile */
+@media (max-width: 768px) {
+  .vh-100 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

@@ -2,8 +2,8 @@ import { Button, Form, Container, Row, Col } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import './styles/HomePage.css';
-
+import '../styles/HomePage.css';
+import energyImage from '../assets/undraw_wind-turbine_4z2a.svg'
 // Validation schema using Yup
 const schema = Yup.object({
   email: Yup.string()
@@ -15,70 +15,107 @@ const schema = Yup.object({
 });
 
 const HomePage = () => {
-  // React Hook Form setup
-  const {
-    register, // Binds inputs to the form
-    handleSubmit, // Handles form submission
-    formState: { errors }, // Tracks validation errors
-  } = useForm({
-    resolver: yupResolver(schema), // Integrate Yup for validation
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
   });
 
-  // Form submission handler
-  const onSubmit = (data) => {
-    console.log('Form Data:', data); // Handle API call here
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert('User added successfully!');
+      } else {
+        alert('Error adding user. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
   };
 
   return (
-    <Container fluid className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={8} md={6} lg={4} className="p-4 bg-white rounded shadow-lg">
-          <h2 className="text-center mb-4">Welcome Back!</h2>
-          <Form onSubmit={handleSubmit(onSubmit)}>
-            {/* Email Field */}
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter email"
-                {...register('email')} 
-                isInvalid={!!errors.email} // Display error state if invalid
-              />
-              {errors.email && <Form.Text className="text-danger">{errors.email.message}</Form.Text>}
-            </Form.Group>
+    <Container fluid className="vh-100 bg-light">
+  <Row className="h-100 align-items-center justify-content-center">
+    {/* Left Image */}
+    <Col xs={12} md={6} lg={6} className="d-none d-md-block">
+      <div className="image-container h-100 d-flex justify-content-center align-items-center">
+        <img
+          src={energyImage}
+          alt="Welcome Graphic"
+          className="img-fluid"
+        />
+      </div>
+    </Col>
 
-            {/* Password Field */}
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter password"
-                {...register('password')} 
-                isInvalid={!!errors.password} // Display error state if invalid
-              />
-              {errors.password && <Form.Text className="text-danger">{errors.password.message}</Form.Text>}
-            </Form.Group>
+    {/* Right Form */}
+    <Col
+      xs={12}
+      md={6}
+      lg={4}
+      className="p-4 bg-white rounded shadow-lg d-flex flex-column justify-content-center"
+    >
+      <h2 className="text-center mb-4">Welcome Back!</h2>
+      <Form onSubmit={handleSubmit(onSubmit)}>
+        <Form.Group className="mb-3" controlId="formBasicEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
+            type="email"
+            placeholder="Enter email"
+            {...register('email')}
+            isInvalid={!!errors.email}
+          />
+          {errors.email && (
+            <Form.Text className="text-danger">
+              {errors.email.message}
+            </Form.Text>
+          )}
+        </Form.Group>
 
-            <div className="d-flex justify-content-between mb-3">
-              <Form.Check type="checkbox" label="Remember me" />
-              <a href="/forgot-password" className="text-muted">
-                Forgot password?
-              </a>
-            </div>
+        <Form.Group className="mb-3" controlId="formBasicPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            placeholder="Enter password"
+            {...register('password')}
+            isInvalid={!!errors.password}
+          />
+          {errors.password && (
+            <Form.Text className="text-danger">
+              {errors.password.message}
+            </Form.Text>
+          )}
+        </Form.Group>
 
-            {/* Submit Button */}
-            <Button variant="primary" type="submit" className="w-100 mb-3">
-              Login
-            </Button>
+        <div className="d-flex justify-content-between mb-3">
+          <Form.Check type="checkbox" label="Remember me" />
+          <a href="/forgot-password" className="text-muted">
+            Forgot password?
+          </a>
+        </div>
 
-            {/* Sign Up Link */}
-            <Button variant="link" href="/signup" className="w-100 text-center text-decoration-none text-primary">
-              Don`t have an account? Sign Up
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+        <Button variant="primary" type="submit" className="w-100 mb-3">
+          Login
+        </Button>
+
+        <Button
+          variant="link"
+          href="/signup"
+          className="w-100 text-center text-decoration-none text-primary"
+        >
+          Don’t have an account? Sign Up
+        </Button>
+      </Form>
+    </Col>
+  </Row>
+</Container>
+
   );
 };
 
