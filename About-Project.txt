@@ -220,26 +220,96 @@ backend/
 =============================
 ======frontend===============
 ===============================
+Below is the **frontend directory structure diagram** based on the given backend structure for consistency and maintainability:
 frontend/
-├── public/                      # Static assets
-│   ├── index.html
-│   └── favicon.ico
-├── src/                         # Main application code
-│   ├── api/                     # API interaction layer
-│   │   ├── budgets.js           # Budget-related API calls
-│   │   ├── users.js             # User-related API calls
-│   ├── components/              # Reusable UI components
-│   │   ├── BudgetForm.jsx       # Form for adding/editing budgets
-│   │   ├── BudgetList.jsx       # List of budgets with data visualization
-│   │   └── Loader.jsx           # Loader or spinner component
-│   ├── pages/                   # Page components for routing
-│   │   ├── Dashboard.jsx        # Dashboard page to display budgets
-│   │   └── NotFound.jsx         # 404 page
-│   ├── hooks/                   # Custom hooks
-│   │   ├── useBudgets.js        # Hook to manage budget data
-│   │   └── useUsers.js          # Hook to manage user data
-│   ├── App.js                   # Main application component
-│   ├── index.js                 # Entry point
-│   ├── styles/                  # Application styles
-│   │   └── globals.css          # Global CSS
-└── package.json                 # Project dependencies
+├── src/
+│   ├── api/                   # API services for interacting with the backend
+│   │   ├── userService.js     # User-related API calls
+│   │   ├── deviceService.js   # Device-related API calls
+│   │   └── budgetService.js   # Budget-related API calls
+│   │   └── alertService.js    # Alert-related API calls
+│   │
+│   ├── components/            # Reusable React components
+│   │   ├── Alerts/            # Alert components
+│   │   │   ├── AlertList.jsx  # Display a list of alerts
+│   │   │   └── AlertItem.jsx  # Single alert component
+│   │   ├── Auth/              # Authentication components
+│   │   │   ├── Login.jsx      # Login form
+│   │   │   └── Register.jsx   # Registration form
+│   │   ├── Devices/           # Device components
+│   │   │   ├── DeviceList.jsx # Display a list of devices
+│   │   │   └── DeviceItem.jsx # Single device component
+│   │   ├── Budget/            # Budget components
+│   │   │   ├── BudgetForm.jsx # Add/Edit budget form
+│   │   │   └── BudgetList.jsx # Display a list of budgets
+│   │   └── Layout/            # Layout components (e.g., Navbar, Footer)
+│   │       ├── Navbar.jsx
+│   │       └── Footer.jsx
+│   │
+│   ├── hooks/                 # Custom hooks for state management
+│   │   ├── useAuth.js         # Authentication-related logic
+│   │   ├── useDevices.js      # Device-related logic
+│   │   ├── useBudgets.js      # Budget-related logic
+│   │   └── useAlerts.js       # Alert-related logic
+│   │
+│   ├── pages/                 # Page components for routing
+│   │   ├── Home.jsx           # Homepage
+│   │   ├── Dashboard.jsx      # User dashboard
+│   │   ├── Devices.jsx        # Device management page
+│   │   ├── Budgets.jsx        # Budget management page
+│   │   ├── Alerts.jsx         # Alerts page
+│   │   ├── Login.jsx          # Login page
+│   │   └── Register.jsx       # Registration page
+│   │
+│   ├── routes/                # Application routes
+│   │   └── AppRoutes.jsx      # Route definitions for the app
+│   │
+│   ├── styles/                # Global and component-specific styles
+│   │   └── global.css         # Global CSS styles
+│   │
+│   ├── utils/                 # Utility functions
+│   │   ├── helpers.js         # Helper functions
+│   │   └── constants.js       # App-wide constants
+│   │
+│   ├── App.js                 # Main application component
+│   ├── index.js               # Entry point for React application
+│   ├── package.json           # Frontend dependencies
+│   └── README.md              # Frontend documentation
+```
+
+### **Explanation**
+1. **API Layer (`api/`)**: Centralized services for API interactions (e.g., users, devices, budgets, alerts).
+2. **Components (`components/`)**: Divided by feature for better reusability and modularity.
+3. **Custom Hooks (`hooks/`)**: Manages state and logic for specific parts of the app.
+4. **Pages (`pages/`)**: Corresponds to different routes in the app.
+5. **Routes (`routes/`)**: Organized routing in a single file for cleaner navigation.
+6. **Styles (`styles/`)**: Centralized styling to maintain design consistency.
+7. **Utils (`utils/`)**: Shared utility functions and constants.
+
+Tech Stack Overview:
+
+Build Tool: Vite for fast builds and development.
+Language: JavaScript (for simplicity).
+Styling: Bootstrap for easy and responsive UI.
+Routing: React Router (v6+) for navigation.
+Data Fetching & State Management: React Query for server state; Redux for client-side state.
+Forms: React Hook Form for form handling and validation.
+Authentication: Custom JWT-based system for user authentication and session management.
+
+Folder Structure
+frontend/
+├── src/
+│   ├── api/                   # API services (React Query hooks)
+│   ├── components/            # Reusable UI components
+│   ├── context/               # Context providers (e.g., auth)
+│   ├── hooks/                 # Custom hooks
+│   ├── pages/                 # Page components
+│   ├── routes/                # Route definitions
+│   ├── styles/                # Global styles (e.g., Bootstrap imports)
+│   ├── utils/                 # Helper functions
+│   ├── App.jsx                # Main App component
+│   └── main.jsx               # Entry point
+├── public/                    # Static assets
+├── vite.config.js             # Vite configuration
+└── package.json
+

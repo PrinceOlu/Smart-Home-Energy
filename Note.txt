@@ -8,3 +8,22 @@
 4) to use JWT with cookie
    npm install cookie-parser
 
+
+   frontend
+   1) create the package
+      npm create vite@latest frontend --template react
+     cd frontend
+      npm install
+      2) install depedencies
+      npm install react-router-dom react-query bootstrap react-hook-form axios
+      npm install react-router-dom
+      npm install react-bootstrap
+
+      3) install form handling package
+      npm install react-hook-form yup @hookform/resolvers
+
+
+
+
+
+

@@ -9,8 +9,8 @@ const { createAlert , getAllAlerts, markAlertAsRead} = require("../controller/al
 
 // route to create an alert
 router.post("/create", userAuthentication, createAlert);
-// route to get all alerts
-router.get("/", userAuthentication, getAllAlerts);
+// route to get all alerts for a specific user
+router.get("/:userId", userAuthentication, getAllAlerts);
 // route to mark an alert as read
 router.put("/:alertId", userAuthentication, markAlertAsRead);
 
