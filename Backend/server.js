@@ -6,6 +6,7 @@ const userRouter = require("./routes/userRoute");
 const deviceRouter = require("./routes/deviceRoutes");
 const cookieParser = require('cookie-parser');
 const budgetRoute = require('./routes/budgetRoutes');
+const alertRoute = require('./routes/alertRoute');
 const app = express(); // Initialize Express app
 // Define the port
 const port = process.env.PORT || 5000;
@@ -23,6 +24,8 @@ app.use("/api/users", userRouter);
 app.use("/api/devices", deviceRouter);
 // budget routes
 app.use("/api/budgets", budgetRoute);
+// alert routes
+app.use("/api/alerts", alertRoute);
 
 // Start the server
 app.listen(port, () => {
