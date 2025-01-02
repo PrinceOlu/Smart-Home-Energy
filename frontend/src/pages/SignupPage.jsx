@@ -1,4 +1,6 @@
-import { Button, Form, Container, Row, Col } from 'react-bootstrap';
+import { Button, Form, Container, Row, Col, InputGroup } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -68,14 +70,19 @@ const SignupPage = () => {
         >
           <h2 className="text-center mb-4">Create an Account!</h2>
           <Form onSubmit={handleSubmit(onSubmit)}>
+            {/* Name Field with Icon */}
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>Full Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter your full name"
-                {...register('name')}
-                isInvalid={!!errors.name}
-              />
+              <InputGroup>
+                <InputGroup.Text>
+                  <FontAwesomeIcon icon={faUser} />
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Full Name"
+                  {...register('name')}
+                  isInvalid={!!errors.name}
+                />
+              </InputGroup>
               {errors.name && (
                 <Form.Text className="text-danger">
                   {errors.name.message}
@@ -83,14 +90,19 @@ const SignupPage = () => {
               )}
             </Form.Group>
 
+            {/* Email Field with Icon */}
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Label>Email Address</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Enter your email"
-                {...register('email')}
-                isInvalid={!!errors.email}
-              />
+              <InputGroup>
+                <InputGroup.Text>
+                  <FontAwesomeIcon icon={faEnvelope} />
+                </InputGroup.Text>
+                <Form.Control
+                  type="email"
+                  placeholder="Email Address"
+                  {...register('email')}
+                  isInvalid={!!errors.email}
+                />
+              </InputGroup>
               {errors.email && (
                 <Form.Text className="text-danger">
                   {errors.email.message}
@@ -98,14 +110,19 @@ const SignupPage = () => {
               )}
             </Form.Group>
 
+            {/* Password Field with Icon */}
             <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type="password"
-                placeholder="Enter your password"
-                {...register('password')}
-                isInvalid={!!errors.password}
-              />
+              <InputGroup>
+                <InputGroup.Text>
+                  <FontAwesomeIcon icon={faLock} />
+                </InputGroup.Text>
+                <Form.Control
+                  type="password"
+                  placeholder="Password"
+                  {...register('password')}
+                  isInvalid={!!errors.password}
+                />
+              </InputGroup>
               {errors.password && (
                 <Form.Text className="text-danger">
                   {errors.password.message}

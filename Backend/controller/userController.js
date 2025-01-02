@@ -6,8 +6,8 @@ const redisClient = require("../utils/redisClient");
 // Common cookie configuration
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 3600000, // 1 hour in milliseconds
+    secure: process.env.NODE_ENV === "production", // Ensures secure cookies are only sent over HTTPS in production
+    // Do not use maxAge in clearCookie
 };
 
 // Function to register a new user
@@ -39,21 +39,31 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const redisKey = `user:${email}`; // Updated Redis key format
+        const redisKey = `user:${email}`;
 
-        // Check Redis cache
-        const cachedUser = await redisClient.get(redisKey);
-        if (cachedUser) {
-            console.log("Cache hit for user:", email);
-            const user = JSON.parse(cachedUser);
-            const token = jwt.sign({ userId: user._id, email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // Check Redis cache for user data
+        const cachedUserData = await redisClient.get(redisKey);
+        if (cachedUserData) {
+            console.log(`Cache hit for user: ${email}`);
+            const cachedUser = JSON.parse(cachedUserData);
 
+            // Generate JWT
+            const token = jwt.sign({ userId: cachedUser.userId }, process.env.JWT_SECRET, {
+                expiresIn: process.env.JWT_EXPIRATION || "1h",
+            });
+
+            // Set the token in an HTTP-only cookie
             res.cookie("auth_token", token, cookieOptions);
-            return res.status(200).json({ message: "User logged in successfully (from cache)", token });
+
+            // Return only userId
+            return res.status(200).json({
+                message: "User logged in successfully (from cache)",
+                userId: cachedUser.userId,
+            });
         }
 
-        // Fetch user from database
-        const user = await userModel.findOne({ email });
+        // Fetch user from the database
+        const user = await userModel.findOne({ email }).select("+password");
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
@@ -64,15 +74,25 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Invalid email or password" });
         }
 
-        // Generate JWT and cache user data
-        const token = jwt.sign({ userId: user._id, email }, process.env.JWT_SECRET, { expiresIn: "1h" });
-        await redisClient.setex(redisKey, 3600, JSON.stringify(user)); // Use the updated key format
+        // Generate JWT and cache necessary user data
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRATION || "24h",
+        });
 
+        const cacheUserData = { userId: user._id, email: user.email };
+        await redisClient.setex(redisKey, 3600, JSON.stringify(cacheUserData));
+
+        // Set the token in an HTTP-only cookie
         res.cookie("auth_token", token, cookieOptions);
-        res.status(200).json({ message: "User logged in successfully", token });
+
+        // Return only userId
+        res.status(200).json({
+            message: "User logged in successfully",
+            userId: user._id,
+        });
     } catch (error) {
         console.error("Error during login:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
@@ -81,31 +101,42 @@ const logoutUser = async (req, res) => {
     try {
         const token = req.cookies.auth_token;
         if (!token) {
-            return res.status(400).json({ message: "User not logged in" });
+            // Clear any residual cookies even if token is not present
+            res.clearCookie("auth_token", { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+            return res.status(200).json({ message: "User logged out successfully" });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { email } = decoded;
-
-        if (!email) {
-            return res.status(400).json({ message: "Email not found in token" });
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            if (err.name === "TokenExpiredError") {
+                // Token expired: Clear cookies and return success
+                res.clearCookie("auth_token", { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+                return res.status(200).json({ message: "User logged out successfully" });
+            }
+            throw err; // Other JWT errors
         }
 
-        const redisKey = `user:${email}`; // Updated Redis key format
+        const { userId } = decoded; // Use userId for cache invalidation
+        const redisKey = `user:${userId}`;
 
-        // Clear the auth_token cookie and invalidate cache
-        res.clearCookie("auth_token");
-        const cacheResult = await redisClient.del(redisKey); // Use the updated key format
+        // Clear the auth_token cookie without using maxAge (as maxAge is deprecated)
+        res.clearCookie("auth_token", {
+            httpOnly: true, // Optional, if you still want to keep it
+            secure: process.env.NODE_ENV === 'production' // Optional, for HTTPS only
+        });
+
+        // Invalidate Redis cache
+        const cacheResult = await redisClient.del(redisKey);
         if (cacheResult === 1) {
             console.log(`Cache invalidated for ${redisKey}`);
-        } else {
-            console.warn(`No cache found for ${redisKey}`);
         }
 
         res.status(200).json({ message: "User logged out successfully" });
     } catch (error) {
         console.error("Error during logout:", error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: "Internal server error" });
     }
 };
 
