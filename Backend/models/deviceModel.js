@@ -18,8 +18,8 @@ const deviceSchema = new mongoose.Schema({
     status:{
         type: String,
         required: true,
-        enum: ["online", "offline"],
-        default: "offline",
+        enum: ["Online", "Offline"],
+        default: "Offline",
     },
     createdAt: {
         type: Date,

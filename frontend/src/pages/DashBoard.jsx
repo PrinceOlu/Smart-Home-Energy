@@ -1,7 +1,7 @@
 import { Container } from 'react-bootstrap';
-import NavBar from '../components/Layout/Navbar';
+import NavBar from '../components/Layout/NavBar';
 import { useEffect, useState } from 'react';
-import TablePage from './TablePage';
+import TablePage from './Devices/DevicePage';
 
 const Dashboard = () => {
   const [userId, setUserId] = useState(null);

@@ -97,6 +97,7 @@ const HomePage = () => {
             <Button type="submit" variant="primary" className="w-100" disabled={isLoading}>
               {isLoading ? 'Logging in...' : 'Login'}
             </Button>
+            Don&apos;t have an account? <Button variant="link" onClick={() => navigate('/signup')}>Sign Up</Button>
           </Form>
         </Col>
       </Row>

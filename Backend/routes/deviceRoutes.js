@@ -5,6 +5,7 @@ const {
     getAllDevicesByUser,
     getDeviceById,
     deleteDeviceById,
+    updateDeviceById
 } = require("../controller/deviceController");
 const userAuthentication = require("../Middleware/userAuthentication");
 const { deviceAuthorization, userDeviseAuthentication } = require("../Middleware/deviceAuthorization");
@@ -16,9 +17,12 @@ router.post("/create",  createDevices);
 router.get("/:userId",getAllDevicesByUser);
 
 // Route to get a specific device by ID for a specific user
-router.get("/:userId/:deviceId", userAuthentication,getDeviceById);
+router.get("/:userId/:deviceId",getDeviceById);
+
+// Route to update a specific device by ID for a specific user
+router.put("/:userId/:deviceId",  updateDeviceById);
 
 // Route to delete a specific device by ID for a specific user
-router.delete("/:userId/:deviceId", userAuthentication, deleteDeviceById);
+router.delete("/:userId/:deviceId",  deleteDeviceById);
 
 module.exports = router;

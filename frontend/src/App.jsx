@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import 'bootstrap/dist/css/bootstrap.min.css';
 import HomePage from './pages/HomePage';
 import SignupPage from './pages/SignupPage';
-import Dashboard from './pages/Dashboard';
+import Dashboard from '../src/pages/DashBoard';
 import Logout from './pages/LogoutPage';
-import AddNewDevice from './pages/AddNewDevice';
+import AddNewDevice from './pages/Devices/AddDeviceModal';
 
 function App() {
  

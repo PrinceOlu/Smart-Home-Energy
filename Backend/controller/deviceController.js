@@ -1,16 +1,31 @@
 const Device = require("../models/deviceModel");
 const User = require("../models/userModel");
+const mongoose = require("mongoose");
 // Function to create devices       
 exports.createDevices = async (req, res) => {
     try {
-        const { name, type, userId } = req.body;
-        const device = new Device({ name, type, userId });  
+        const { name, type, status, userId } = req.body;
+
+        // Validate required fields
+        if (!name || !type || !userId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        // Validate userId
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ message: "Invalid userId" });
+        }
+
+        // Create and save the device
+        const device = new Device({ name, type, status, userId });
         await device.save();
+
         res.status(201).json({ message: "Device created successfully", device });
     } catch (error) {
-        res.status(500).json({ message: "Failed to create device", error });
+        res.status(500).json({ message: "Failed to create device", error: error.message });
     }
-};  
+};
+ 
 
 // Function to get all devices for a specific user
 // pagination added
@@ -55,10 +70,10 @@ exports.getDeviceById = async (req, res) => {
 exports.updateDeviceById = async (req, res) => {
     try {
         const { userId, deviceId } = req.params;
-        const { name, type } = req.body;
+        const { name, type, status } = req.body;
         const device = await Device.findOneAndUpdate(
             { _id: deviceId, userId },
-            { name, type },
+            { name, type, status },
             { new: true }
         );
         if (!device) {
