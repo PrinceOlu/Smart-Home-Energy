@@ -5,6 +5,7 @@ import SignupPage from './pages/SignupPage';
 import Dashboard from '../src/pages/DashBoard';
 import Logout from './pages/LogoutPage';
 import AddNewDevice from './pages/Devices/AddDeviceModal';
+import EnergyUsageDashboard from './pages/energyUsage/EnergyUsageDashboard';
 
 function App() {
  
@@ -19,6 +20,7 @@ function App() {
         {/* Protected route */}
         <Route path="/dashboard" element={<Dashboard /> } />
         <Route path="/add-device" element={<AddNewDevice />} />
+        <Route path="/EnergyUsageDashboard" element={<EnergyUsageDashboard />} />
         {/* Catch all route for 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

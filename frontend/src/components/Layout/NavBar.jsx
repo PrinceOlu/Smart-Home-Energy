@@ -19,7 +19,7 @@ function NavBar() {
       <Container>
         <Navbar.Brand href={userId ? `/dashboard` : '/'}>Prince-Energy</Navbar.Brand>
         <Nav className="me-auto">
-          <Nav.Link href="#device">Energy</Nav.Link>
+          <Nav.Link href={userId ? `/EnergyUsageDashboard` : '/'}>Energy</Nav.Link>
           <Nav.Link href="#budget">Budget</Nav.Link>
           <Nav.Link onClick={handleLogout} style={{ cursor: 'pointer' }}>
             Logout

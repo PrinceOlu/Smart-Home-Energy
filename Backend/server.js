@@ -4,6 +4,7 @@ const cors = require("cors");
 const dbConfig = require("./config/dbConfig");
 const userRouter = require("./routes/userRoute");
 const deviceRouter = require("./routes/deviceRoutes");
+const energyUsageRoute = require("./routes/energyUsageRoute");
 const budgetRoute = require('./routes/budgetRoutes');
 const alertRoute = require('./routes/alertRoute');
 const cookieParser = require('cookie-parser');
@@ -36,6 +37,9 @@ app.use("/api/users", userRouter);
 
 // Device routes
 app.use("/api/devices", deviceRouter);
+
+// Energy usage routes
+app.use("/api/energy-usage", energyUsageRoute);
 
 // Budget routes
 app.use("/api/budgets", budgetRoute);
