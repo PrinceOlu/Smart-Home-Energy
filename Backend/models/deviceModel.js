@@ -1,25 +1,50 @@
 const mongoose = require("mongoose");
 
-// define the device schema     
-const deviceSchema = new mongoose.Schema({  
+// Define the device schema
+const deviceSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
     },
-   type: {
+    type: {
         type: String,
         required: true,
     },
-    userId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
     },
-    status:{
+    status: {
         type: String,
         required: true,
         enum: ["Online", "Offline"],
         default: "Offline",
+    },
+    powerRating: {
+        type: Number,
+        required: true,
+    },
+    energyUsage: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    energyConsumptionHistory: [
+        {
+            timestamp: {
+                type: Date,
+                required: true,
+            },
+            energyConsumed: {
+                type: Number,
+                required: true,
+            },
+        }
+    ],
+    lastUpdated: {
+        type: Date,
+        default: Date.now,
     },
     createdAt: {
         type: Date,
@@ -31,7 +56,7 @@ const deviceSchema = new mongoose.Schema({
     },
 });
 
-// create the device model
+// Create the device model
 const Device = mongoose.model("Device", deviceSchema);
 
 module.exports = Device;

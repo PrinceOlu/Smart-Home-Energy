@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 // Function to create devices       
 exports.createDevices = async (req, res) => {
     try {
-        const { name, type, status, userId } = req.body;
+        const { name, type, status, userId, powerRating, energyUsage } = req.body;
 
         // Validate required fields
         if (!name || !type || !userId) {
@@ -17,7 +17,7 @@ exports.createDevices = async (req, res) => {
         }
 
         // Create and save the device
-        const device = new Device({ name, type, status, userId });
+        const device = new Device({ name, type, status, userId, powerRating, energyUsage });
         await device.save();
 
         res.status(201).json({ message: "Device created successfully", device });
@@ -70,10 +70,10 @@ exports.getDeviceById = async (req, res) => {
 exports.updateDeviceById = async (req, res) => {
     try {
         const { userId, deviceId } = req.params;
-        const { name, type, status } = req.body;
+        const { name, type, status, powerRating, energyUsage } = req.body;
         const device = await Device.findOneAndUpdate(
             { _id: deviceId, userId },
-            { name, type, status },
+            { name, type, status, powerRating, energyUsage },
             { new: true }
         );
         if (!device) {
@@ -84,6 +84,52 @@ exports.updateDeviceById = async (req, res) => {
         res.status(500).json({ message: "Failed to update device", error });
     }
 };
+
+// Function to update energy usage for a specific device by ID for a specific user
+exports.updateEnergyUsage = async (req, res) => {
+    try {
+      // Retrieve the device from the database
+      const { userId, deviceId } = req.params;
+      const device = await Device.findOne({ _id: deviceId, userId });
+  
+      if (!device) {
+        return res.status(404).json({ message: "Device not found" });
+      }
+  
+      // Calculate the energy usage if the device is online
+      if (device.status === "Online") {
+        const currentTime = new Date();
+        
+        // Calculate the time difference in hours
+        const timeElapsedInHours = (currentTime - device.lastUpdated) / (1000 * 3600); // Time in hours
+  
+        // Calculate energy consumed in kWh using the formula: (Power (W) * Time (h)) / 1000
+        const energyConsumed = (timeElapsedInHours * device.powerRating) / 1000; // Energy in kWh
+  
+        // Update the total energy usage for the device
+        device.energyUsage += energyConsumed;
+  
+        // Store the energy consumption in the history
+        device.energyConsumptionHistory.push({
+          timestamp: currentTime,
+          energyConsumed: energyConsumed,
+        });
+  
+        // Update the last updated time
+        device.lastUpdated = currentTime;
+  
+        // Save the updated device data to the database
+        await device.save();
+  
+        res.status(200).json({ message: "Energy usage updated successfully" });
+      } else {
+        res.status(200).json({ message: "Device is offline, no energy usage to update" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update energy usage", error: error.message });
+    }
+  };
+  
 
 // Function to delete a specific device by ID for a specific user
 exports.deleteDeviceById = async (req, res) => {

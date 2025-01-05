@@ -9,6 +9,8 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
     name: '',
     type: '',
     status: '',
+    powerRating: '',
+    energyUsage: '',
   });
 
   const handleChange = (e) => {
@@ -62,7 +64,30 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
               ))}
             </Form.Control>
           </Form.Group>
-
+              {/* lets create input for powerRating */}
+              <Form.Group controlId="formDevicePowerRating" className="mb-3">
+                <Form.Label>Device Power Rating</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter device power rating"
+                  name="powerRating"
+                  value={formData.powerRating}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+              {/* lets create input for energyUsage  */}
+              <Form.Group controlId="formDeviceEnergyUsage" className="mb-3">
+                <Form.Label>Device Energy Usage</Form.Label>
+                <Form.Control
+                  type="number"
+                  placeholder="Enter device energy usage"
+                  name="energyUsage"
+                  value={formData.energyUsage}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
           <Form.Group controlId="formDeviceStatus" className="mb-3">
             <Form.Label>Device Status</Form.Label>
             <Form.Control

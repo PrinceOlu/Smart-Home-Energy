@@ -1,48 +1,10 @@
 import { Container } from 'react-bootstrap';
 import NavBar from '../components/Layout/NavBar';
-import { useEffect, useState } from 'react';
-import TablePage from './Devices/DevicePage';
-
+import DevicePage from './Devices/DevicePage';
+import useAuth from '../utils/useAuth';
 const Dashboard = () => {
-  const [userId, setUserId] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      try {
-        // First check localStorage
-        let currentUserId = localStorage.getItem('userId');
-        
-        // If not in localStorage, check if user has an active session
-        if (!currentUserId) {
-          const response = await fetch('http://localhost:5000/api/auth/session', {
-            credentials: 'include'
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            currentUserId = data.userId;
-            // Save to localStorage for future use
-            localStorage.setItem('userId', currentUserId);
-          } else {
-            // If no active session, redirect to login
-            window.location.href = '/login';
-            return;
-          }
-        }
-        
-        setUserId(currentUserId);
-      } catch (error) {
-        console.error('Authentication check failed:', error);
-        window.location.href = '/login';
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuthentication();
-  }, []);
-
+  const { userId, isLoading } = useAuth();
+  
   if (isLoading) {
     return (
       <Container>
@@ -63,7 +25,7 @@ const Dashboard = () => {
     <>
       <NavBar />
       <Container>
-         <TablePage userId={userId} />
+         <DevicePage userId={userId} />
       </Container>
     </>
   );
