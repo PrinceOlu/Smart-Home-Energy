@@ -8,7 +8,7 @@ const energyUsageRoute = require("./routes/energyUsageRoute");
 const budgetRoute = require('./routes/budgetRoutes');
 const alertRoute = require('./routes/alertRoute');
 const cookieParser = require('cookie-parser');
-
+const { aggregateBudgetUsage }  = require('./cron/budgetAggregator');
 const app = express(); // Initialize Express app
 
 // Define the port
@@ -46,6 +46,18 @@ app.use("/api/budgets", budgetRoute);
 
 // Alert routes
 app.use("/api/alerts", alertRoute);
+
+
+
+// Manually trigger the cron job (for testing)
+app.get("/trigger-cron-job", async (req, res) => {
+    try {
+      await aggregateBudgetUsage();  // Manually trigger the aggregation function
+      res.send("Cron job triggered manually!");
+    } catch (error) {
+      res.status(500).send("Error triggering cron job.");
+    }
+  });
 
 // Start the server
 app.listen(port, () => {

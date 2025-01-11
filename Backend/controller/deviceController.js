@@ -144,3 +144,37 @@ exports.deleteDeviceById = async (req, res) => {
         res.status(500).json({ message: "Failed to delete device", error });
     }
 }
+
+// function to log energy usage for a specific device by ID for a specific user
+exports.logDeviceEnergyUsage = async (req, res) => {
+    try {
+        const { userId, deviceId } = req.params;
+        const {energyConsumed} = req.body;
+       
+        if(!energyConsumed || energyConsumed <= 0){
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const device = await Device.findOne({ _id: deviceId, userId });
+        if (!device) {
+            return res.status(404).json({ message: "Device not found" });
+        }
+        // update energy usage
+        device.energyUsage += energyConsumed;
+
+        // Store the energy consumption in the history
+        device.energyConsumptionHistory.push({
+          timestamp: new Date(),
+          energyConsumed: energyConsumed,
+        });
+        device.lastUpdated = new Date();
+        // Save the updated device data to the database
+        await device.save();
+
+        res.status(200).json({
+            message: "Energy usage logged successfully",
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Failed to log energy usage", error });
+    }
+}

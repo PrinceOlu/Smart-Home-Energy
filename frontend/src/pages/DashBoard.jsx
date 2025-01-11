@@ -1,7 +1,7 @@
 import { Container } from 'react-bootstrap';
 import NavBar from '../components/Layout/NavBar';
 import DevicePage from './Devices/DevicePage';
-import useAuth from '../utils/useAuth';
+import useAuth from '../hooks/useAuth';
 const Dashboard = () => {
   const { userId, isLoading } = useAuth();
   

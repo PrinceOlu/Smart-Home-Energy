@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Spinner, Alert } from "react-bootstrap";
 import { FaExclamationTriangle } from "react-icons/fa";
-import useAuth from "../../utils/useAuth";
+import useAuth from "../../hooks/useAuth";
 import NavBar from "../../components/Layout/NavBar";
-import EnergyChart from "./EnergyChart";
+import EnergyPieChart from "./EnergyPieChart";
+import EnergyBarChart from "./EnergyBarChart";
 
 const EnergyUsageDashboard = () => {
   const { userId, isLoading } = useAuth();
@@ -90,7 +91,8 @@ const EnergyUsageDashboard = () => {
       </div>
       
       {/* Pass allDevices to the EnergyChart */}
-      <EnergyChart data={chartData} />
+      <EnergyPieChart data={chartData} />
+      <EnergyBarChart data={chartData} />
     </>
   );
 };

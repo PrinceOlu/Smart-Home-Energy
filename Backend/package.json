@@ -20,6 +20,7 @@
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.2",
+    "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {

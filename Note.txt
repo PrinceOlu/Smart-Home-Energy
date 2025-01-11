@@ -26,7 +26,21 @@
     npm install @fortawesome/react-fontawesome @fortawesome/free-solid-svg-icons @fortawesome/free-regular-svg-icons @fortawesome/fontawesome-svg-core
     npm install react-icons
 
-
+4. Notifications & Alerts
+Usage Alerts: Implement notifications for users when their devices consume more energy than expected or if any device requires attention due to high energy consumption.
+Email/SMS Alerts: If relevant, integrate email or SMS services to notify users of excessive energy usage or failed updates.
+5. User Profiles
+Allow users to set up profiles with preferences or limits for energy usage. This could include:
+Thresholds: Users can set a threshold for energy consumption and get alerted when they approach or exceed it.
+Energy Budget: Allow users to specify how much energy they want to consume for a given period (e.g., monthly).
+6. Energy Usage History
+Historical Data: Implement a feature to store and display historical energy usage for each device and user. This could help users track their energy consumption over time.
+Create charts/graphs to visualize usage trends (e.g., monthly or weekly power usage).
+7. Additional Features
+You could enhance the dashboard by:
+Adding charts or graphs (using a library like Chart.js or Recharts) to visualize energy usage over time.
+Allowing users to set energy usage goals or targets and comparing their actual usage against those goals.
+Integrating historical data by allowing users to view energy usage trends over days, weeks, or months.
 
 
 

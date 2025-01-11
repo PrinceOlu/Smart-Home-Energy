@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { FaPlus, FaEdit, FaTrashAlt, FaBolt } from "react-icons/fa";
 import AddDeviceModal from "./AddDeviceModal";
 import EditDeviceModal from "./EditDeviceModal";
-import useAuth from '../../utils/useAuth';
+import useAuth from '../../hooks/useAuth';
 const DevicePage = () => {
   const { userId} = useAuth();
   const [showModal, setShowModal] = useState(false);

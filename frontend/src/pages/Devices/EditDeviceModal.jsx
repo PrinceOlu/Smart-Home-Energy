@@ -1,7 +1,7 @@
 import  { useState, useEffect } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import useAuth from '../../utils/useAuth';
+import useAuth from '../../hooks/useAuth';
 
 const EditDeviceModal = ({ show, handleClose, handleSubmit, deviceToEdit }) => {
   const { userId, isLoading } = useAuth();

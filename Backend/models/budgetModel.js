@@ -7,27 +7,39 @@ const budgetSchema = new mongoose.Schema(
             ref: "User",
             required: true,
         },
-        budget: {
+        energyLimit: {
             type: Number,
             required: true,
         },
         period: {
             type: String,
             enum: ["Daily", "Weekly", "Monthly", "Yearly"],
+            default: "Monthly",
         },
         energyUsage: {
             type: Number,
-            required: true,
             default: 0,
+            min: 0,
         },
         alerts: {
-            type: Boolean,
-            required: true,
-            default: false,
+            type: Boolean,  // Changed from array of enums to simple boolean
+            default: false
+        },
+        status: {
+            type: String,
+            enum: ["Active", "Archived"],
+            default: "Active",
+        },
+        startDate: {
+            type: Date,
+            default: Date.now,
+        },
+        endDate: {
+            type: Date,
         },
     },
     {
-        timestamps: true, // Automatically adds createdAt and updatedAt fields
+        timestamps: true,
     }
 );
 

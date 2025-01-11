@@ -67,7 +67,7 @@ iv) Bootstrap: For consistent styling and responsiveness.
 4) Tools and Libraries:
 1) Chart.js: For visualizing energy trends.
 2) JWT: For secure authentication.
-3) Axios: For API calls between frontend and backend.
+3) Fetch: For API calls between frontend and backend.
 
 I) Project Structure
 backend/
@@ -313,3 +313,56 @@ frontend/
 ├── vite.config.js             # Vite configuration
 └── package.json
 
+2. Track Total Energy Usage Across Devices
+Backend
+Update the energyUsage field dynamically whenever energy is consumed by a device.
+Link energy usage from devices to the budget.
+Steps:
+
+Device Energy Usage Tracking:
+Every device logs its energy usage periodically.
+Aggregate Usage:
+Sum the energy usage of all devices linked to the user's active budget.
+
+Front-End
+Display a progress bar or chart showing the current usage vs. limit.
+Sample Progress Display:
+
+Energy Usage: 120 kWh
+Limit: 300 kWh
+Progress Bar: (40% used)
+
+
+3. Trigger Alerts When the Budget Limit is Exceeded
+Backend
+Add logic to compare energyUsage with energyLimit.
+When usage exceeds the limit, set the alerts field to true and notify the user.
+Front-End
+Show a warning banner or modal when the user logs in if the budget is exceeded.
+4. Store Historical Budgets and Usage Data for Reporting
+Backend
+Maintain a history of budgets and their usage data.
+Use a schema like:
+Front-End
+Add a "Budget History" section showing:
+Previous budgets
+Periods
+Limits vs. usage
+Example Table:
+
+Period	Limit (kWh)	Usage (kWh)	Status	Alerts
+Jan 2025	300	320	Exceeded	Yes
+Dec 2024	300	290	Met	No
+Features Integration Workflow:
+Backend Logic:
+
+Create endpoints for budget creation, usage tracking, and history retrieval.
+Add checks for alert triggers.
+Front-End Implementation:
+
+Add input fields for setting limits.
+Display current usage vs. limit visually.
+Show alerts and historical data.
+Automation:
+
+Use a cron job to reset monthly budgets and store old budgets as history.

@@ -6,7 +6,8 @@ const {
     getDeviceById,
     deleteDeviceById,
     updateDeviceById,
-    updateEnergyUsage
+    updateEnergyUsage,
+    logDeviceEnergyUsage
 } = require("../controller/deviceController");
 const userAuthentication = require("../Middleware/userAuthentication");
 const { deviceAuthorization, userDeviseAuthentication } = require("../Middleware/deviceAuthorization");
@@ -28,4 +29,7 @@ router.delete("/:userId/:deviceId",  deleteDeviceById);
 
 // Route to update energy usage for a specific device by ID for a specific user
 router.put("/:userId/:deviceId/energy-usage", updateEnergyUsage);
+
+// route to add all energy usage for the active budget
+router.put("/:deviceId/log-energy", logDeviceEnergyUsage);
 module.exports = router;

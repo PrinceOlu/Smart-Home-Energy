@@ -1,7 +1,7 @@
 import  { useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import useAuth from '../../utils/useAuth';
+import useAuth from '../../hooks/useAuth';
 
 const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
   const { userId, isLoading } = useAuth();
@@ -27,14 +27,18 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
   if (!userId) {
     return <p>Redirecting to login...</p>;
   }
-
+// handle form submission
+const handleFormSubmit = (e) => {
+  e.preventDefault();
+  handleSubmit(e, formData);
+}
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>Add New Device</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={(e) => handleSubmit(e, formData)}>
+        <Form onSubmit={handleFormSubmit}>
           <Form.Group controlId="formDeviceName" className="mb-3">
             <Form.Label>Device Name</Form.Label>
             <Form.Control

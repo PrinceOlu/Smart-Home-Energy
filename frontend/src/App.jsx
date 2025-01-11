@@ -6,7 +6,7 @@ import Dashboard from '../src/pages/DashBoard';
 import Logout from './pages/LogoutPage';
 import AddNewDevice from './pages/Devices/AddDeviceModal';
 import EnergyUsageDashboard from './pages/energyUsage/EnergyUsageDashboard';
-
+import BudgetPage from './pages/Budgets/BudgetPage';
 function App() {
  
   return (
@@ -21,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard /> } />
         <Route path="/add-device" element={<AddNewDevice />} />
         <Route path="/EnergyUsageDashboard" element={<EnergyUsageDashboard />} />
+        <Route path="/BudgetPage" element={<BudgetPage />} />
         {/* Catch all route for 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

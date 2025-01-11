@@ -1,23 +1,39 @@
-const express = require("express"); 
+const express = require("express");
 const router = express.Router();
-const { createBudget, getAllBudgetsByUser, updateBudgetById, deleteBudgetById, getBudgetById, fetchEnergyUsage, updateEnergyUsage } = require("../controller/budgetController");
-const userAuthentication = require("../Middleware/userAuthentication");
-// const userDeviseAuthentication = require("../Middleware/userDeviseAuthentication");
+const {
+    createBudget,
+    getAllBudgetsByUser,
+    getBudgetById,
+    updateBudgetById,
+    deleteBudgetById,
+    fetchEnergyUsage,
+    updateEnergyUsage,
+    aggregateEnergyUsage
+} = require("../controller/budgetController");
+// const userAuthentication = require("../Middleware/userAuthentication");
 
-// routes to create budget
-router.post("/create", userAuthentication, createBudget);
-// routes to get all budgets 
-router.get("/:userId", userAuthentication, getAllBudgetsByUser); 
-// route to get a specific budget
-router.get("/:userId/:budgetId", userAuthentication, getBudgetById);
-// route to update a specific budget
-router.put("/:userId/:budgetId", userAuthentication, updateBudgetById); 
-// route to delete a specific budget
-router.delete("/:userId/:budgetId", userAuthentication, deleteBudgetById); 
+// Create a new budget
+router.post("/create",  createBudget);
 
-// routes for fetching energy usage data
-router.get("/:userId/:budgetId/energy-usage", userAuthentication, fetchEnergyUsage);
-// routes for updating energy usage data
-router.put("/:userId/:budgetId/energy-usage", userAuthentication, updateEnergyUsage);
+// Get all budgets for a specific user
+router.get("/:userId",  getAllBudgetsByUser);
+
+// Get a specific budget by ID
+router.get("/:userId/:budgetId",  getBudgetById);
+
+// Update a specific budget by ID
+router.put("/:userId/:budgetId",  updateBudgetById);
+
+// Delete a specific budget by ID
+router.delete("/:userId/:budgetId",  deleteBudgetById);
+
+// Fetch energy usage for a specific budget
+router.get("/:userId/:budgetId/energy-usage",  fetchEnergyUsage);
+
+// Update energy usage for a specific budget
+router.put("/:userId/:budgetId/energy-usage",  updateEnergyUsage);
+
+// route to aggregate energy usage
+router.put("/:userId/:budgetId/aggregate-usage", aggregateEnergyUsage);
 
 module.exports = router;
