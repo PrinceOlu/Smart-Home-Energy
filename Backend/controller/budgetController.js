@@ -8,7 +8,7 @@ const Device = require("../models/deviceModel");
 // Create a new budget
 const createBudget = async (req, res) => {
     try {
-        const { userId, energyLimit, period, alerts, energyUsage } = req.body;
+        const { userId, energyLimit, period, alerts } = req.body;
 
         // Input validation
         if (!userId || !energyLimit || !period) {
@@ -56,7 +56,7 @@ const createBudget = async (req, res) => {
             energyLimit: Number(energyLimit),
             period: period.trim(),
             alerts: alertsValue,  // Using the properly parsed boolean value
-            energyUsage: energyUsage || 0,
+            
         });
 
         // Save the budget

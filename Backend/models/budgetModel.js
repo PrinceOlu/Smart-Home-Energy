@@ -13,9 +13,9 @@ const budgetSchema = new mongoose.Schema(
         },
         period: {
             type: String,
-            enum: ["Daily", "Weekly", "Monthly", "Yearly"],
-            default: "Monthly",
-        },
+            required: true,
+            unique: true,
+                   },
         energyUsage: {
             type: Number,
             default: 0,

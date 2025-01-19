@@ -4,10 +4,10 @@ const mongoose = require("mongoose");
 // Function to create devices       
 exports.createDevices = async (req, res) => {
     try {
-        const { name, type, status, userId, powerRating, energyUsage } = req.body;
+        const { name, status, userId, powerRating } = req.body;
 
         // Validate required fields
-        if (!name || !type || !userId) {
+        if (!name || !userId) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
@@ -17,7 +17,7 @@ exports.createDevices = async (req, res) => {
         }
 
         // Create and save the device
-        const device = new Device({ name, type, status, userId, powerRating, energyUsage });
+        const device = new Device({ name, status, userId, powerRating });
         await device.save();
 
         res.status(201).json({ message: "Device created successfully", device });
@@ -97,7 +97,7 @@ exports.updateEnergyUsage = async (req, res) => {
       }
   
       // Calculate the energy usage if the device is online
-      if (device.status === "Online") {
+      if (device.status === "On") {
         const currentTime = new Date();
         
         // Calculate the time difference in hours

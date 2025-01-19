@@ -59,23 +59,7 @@ const EditDeviceModal = ({ show, handleClose, handleSubmit, deviceToEdit }) => {
             />
           </Form.Group>
 
-          <Form.Group controlId="formDeviceType" className="mb-3">
-            <Form.Label>Device Type</Form.Label>
-            <Form.Control
-              as="select"
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select a device type</option>
-              {['Laptop', 'Smartphone', 'Tablet', 'Others'].map((type, index) => (
-                <option key={index} value={type}>
-                  {type}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
+          
  {/* lets create input for powerRating */}
  <Form.Group controlId="formDevicePowerRating" className="mb-3">
                 <Form.Label>Device Power Rating</Form.Label>
@@ -88,18 +72,7 @@ const EditDeviceModal = ({ show, handleClose, handleSubmit, deviceToEdit }) => {
                   required
                 />
               </Form.Group>
-              {/* lets create input for energyUsage  */}
-              <Form.Group controlId="formDeviceEnergyUsage" className="mb-3">
-                <Form.Label>Device Energy Usage</Form.Label>
-                <Form.Control
-                  type="number"
-                  placeholder="Enter device energy usage"
-                  name="energyUsage"
-                  value={formData.energyUsage}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
+            
           <Form.Group controlId="formDeviceStatus" className="mb-3">
             <Form.Label>Device Status</Form.Label>
             <Form.Control
@@ -110,8 +83,8 @@ const EditDeviceModal = ({ show, handleClose, handleSubmit, deviceToEdit }) => {
               required
             >
               <option value="">Select a status</option>
-              <option value="Online">Online</option>
-              <option value="Offline">Offline</option>
+              <option value="On">On</option>
+              <option value="Off">Off</option>
             </Form.Control>
           </Form.Group>
 

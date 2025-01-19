@@ -5,8 +5,9 @@ import { FaPlus, FaEdit, FaTrashAlt, FaBolt } from "react-icons/fa";
 import AddDeviceModal from "./AddDeviceModal";
 import EditDeviceModal from "./EditDeviceModal";
 import useAuth from '../../hooks/useAuth';
+
 const DevicePage = () => {
-  const { userId} = useAuth();
+  const { userId } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +58,7 @@ const DevicePage = () => {
       if (!response.ok) {
         throw new Error(data.message || "Failed to add device");
       }
-      // Only refetch devices after successful creation
+      // Refetch devices after successful form submission
       await fetchDevices();
       handleCloseModal();
     } catch (err) {
@@ -84,26 +85,36 @@ const DevicePage = () => {
       if (!response.ok) {
         throw new Error(data.message || "Failed to update device");
       }
-      await fetchDevices(); // Fetch devices after update
+      // Refetch devices after successful form submission
+      await fetchDevices(); // Fetch updated devices
       handleCloseModal();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Update Energy Usage Handler
+  // Optimistic UI Update for Energy Usage Handler
   const handleUpdateEnergyUsage = async (deviceId) => {
     if (!deviceId || updatingEnergy === deviceId) return;
 
     try {
       setUpdatingEnergy(deviceId);
       setError(null);
-      
+
+      // Optimistically update the energy usage
+      setDevices((prevDevices) =>
+        prevDevices.map((device) =>
+          device._id === deviceId
+            ? { ...device, energyUsage: device.energyUsage + 0.5 } // Sample optimistic change
+            : device
+        )
+      );
+
       const response = await fetch(
         `http://localhost:5000/api/devices/${userId}/${deviceId}/energy-usage`,
         { 
           method: "PUT",
-          headers: { "Content-Type": "application/json" }
+          headers: { "Content-Type": "application/json" },
         }
       );
 
@@ -112,13 +123,33 @@ const DevicePage = () => {
         throw new Error(data.message || "Failed to update energy usage");
       }
 
-      await fetchDevices(); // Fetch devices after updating energy usage
+      // Refetch devices after updating energy usage
+      await fetchDevices(); // Fetch updated devices after successful energy update
     } catch (err) {
       setError(err.message);
+      // Revert optimistic update in case of error
+      setDevices((prevDevices) =>
+        prevDevices.map((device) =>
+          device._id === deviceId
+            ? { ...device, energyUsage: device.energyUsage - 0.5 } // Revert optimistic change
+            : device
+        )
+      );
     } finally {
       setUpdatingEnergy(null);
     }
   };
+
+  // lets use setInterval to update the energy usage every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      devices.forEach((device) => {
+        handleUpdateEnergyUsage(device._id);
+      });
+    }, 60000); // 1 minute = 60000 ms
+
+    return () => clearInterval(interval);
+  }, [devices]);
 
   // Delete Device Handler
   const handleDeleteDevice = async (deviceId) => {
@@ -135,7 +166,8 @@ const DevicePage = () => {
         throw new Error(data.message || "Failed to delete device");
       }
 
-      await fetchDevices(); // Fetch devices after deleting
+      // Refetch devices after successful deletion
+      await fetchDevices(); // Fetch updated devices
     } catch (err) {
       setError(err.message);
     }
@@ -144,12 +176,18 @@ const DevicePage = () => {
   // Initialize Devices Fetch
   useEffect(() => {
     fetchDevices(); // Fetch devices on page load
+
+    // Set interval to refetch devices every hour
+    const interval = setInterval(fetchDevices, 60000); // 1 minute = 60000 ms
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
   }, [fetchDevices]);
 
   return (
     <div className="container mt-4">
       {error && <Alert variant="danger" className="mb-3" dismissible onClose={() => setError(null)}>{error}</Alert>}
-      
+
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Your Devices</h2>
         <Button variant="primary" onClick={() => handleShowModal()}>
@@ -184,7 +222,6 @@ const DevicePage = () => {
               <tr>
                 <th>#</th>
                 <th>Device Name</th>
-                <th>Type</th>
                 <th>Power Rating</th>
                 <th>Energy Usage</th>
                 <th>Status</th>
@@ -198,7 +235,6 @@ const DevicePage = () => {
                   <tr key={device._id}>
                     <td>{index + 1}</td>
                     <td>{device.name}</td>
-                    <td>{device.type}</td>
                     <td>{device.powerRating} kW</td>
                     <td>{device.energyUsage} kWh</td>
                     <td>{device.status}</td>

@@ -17,8 +17,10 @@ function NavBar() {
   return (
     <Navbar bg="primary" data-bs-theme="dark">
       <Container>
-        <Navbar.Brand href={userId ? `/dashboard` : '/'}>Prince-Energy</Navbar.Brand>
+        <Navbar.Brand >Smart-Home-Energy</Navbar.Brand>
+        
         <Nav className="me-auto">
+          <Nav.Link href={userId ? `/dashboard` : '/'}>Device</Nav.Link>
           <Nav.Link href={userId ? `/EnergyUsageDashboard` : '/'}>Energy</Nav.Link>
           <Nav.Link href={userId ? `/BudgetPage` : '/'}>Budget</Nav.Link>
           <Nav.Link onClick={handleLogout} style={{ cursor: 'pointer' }}>
