@@ -21,7 +21,7 @@ const formatDateGroup = (date) => {
   }
 };
 
-const EditBudgetModal = ({ show, handleClose, onBudgetUpdated, budgetId, initialBudget }) => {
+const EditBudgetModal = ({ show, handleClose, onBudgetUpdated, budgetId = "", initialBudget }) => {
   const { userId, isLoading: authLoading } = useAuth();
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [monthlyGroups, setMonthlyGroups] = useState([]);

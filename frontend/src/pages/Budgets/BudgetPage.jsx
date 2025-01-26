@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import React from "react";
 import {
   Container,
   Spinner,
@@ -18,7 +19,19 @@ import useAuth from "../../hooks/useAuth";
 import NavBar from "../../components/Layout/NavBar";
 import AddBudgetModal from "./AddBudgetModal";
 import EditBudgetModal from "./EditBudgetModal";
-import BudgetDashboard from "./BudgetDashboard";
+const BudgetDashboard = React.lazy(() => import("./BudgetDashboard"));
+
+const formatDateGroup = (date) => {
+  try {
+    return new Date(date).toLocaleString("en-US", {
+      month: "long",
+      year: "numeric",
+    });
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    return "Invalid Date";
+  }
+};
 
 const BudgetPage = () => {
   const { userId, isLoading } = useAuth();
@@ -30,6 +43,7 @@ const BudgetPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [budgetIdToEdit, setBudgetIdToEdit] = useState(null);
+  const [deviceGroups, setDeviceGroups] = useState([]);
 
   const fetchEnergyUsageData = async () => {
     try {
@@ -68,6 +82,38 @@ const BudgetPage = () => {
       const response = await fetch(`http://localhost:5000/api/devices/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch devices.");
       const data = await response.json();
+
+      // Group devices by month/year
+      const groupedDevices = data.devices.reduce((acc, device) => {
+        if (!device?.createdAt) return acc;
+
+        const date = new Date(device.createdAt);
+        if (isNaN(date.getTime())) return acc;
+
+        const monthYear = formatDateGroup(date);
+
+        if (!acc[monthYear]) {
+          acc[monthYear] = {
+            label: monthYear,
+            date: device.createdAt,
+            count: 0,
+            devices: [],
+            totalPower: 0,
+          };
+        }
+
+        acc[monthYear].count += 1;
+        acc[monthYear].devices.push(device._id);
+        acc[monthYear].totalPower += device.powerRating || 0;
+
+        return acc;
+      }, {});
+
+      const sortedGroups = Object.values(groupedDevices).sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      );
+
+      setDeviceGroups(sortedGroups);
       setTotalDevices(data.totalDevices || 0);
     } catch (err) {
       setError(err.message || "Failed to fetch devices.");
@@ -156,70 +202,70 @@ const BudgetPage = () => {
         <BudgetDashboard budgets={budgets} totalEnergyUsage={totalEnergyUsage} totalDevices={totalDevices} />
 
         <AddBudgetModal show={showAddModal} handleClose={handleCloseModals} />
-        <EditBudgetModal show={showEditModal} handleClose={handleCloseModals} budgetId={budgetIdToEdit} />
+        <EditBudgetModal show={showEditModal} handleClose={handleCloseModals} budgetId={budgetIdToEdit || ""} />
 
         {loading ? (
           <div className="text-center mt-5">
             <Spinner animation="border" variant="primary" />
-            <p>Loading budgets...</p>
+            <p>Loading devices...</p>
           </div>
-        ) : budgets.length === 0 ? (
-          <Alert variant="info">No budgets found.</Alert>
-        ) : (
-          <Table striped bordered hover responsive>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Period</th>
-                <th>Number of Devices</th>
-                <th>Budget Limit (kWh)</th>
-                <th>Energy Usage (kWh)</th>
-                <th>Alerts</th>
-                <th>Actions</th>
+        ) : deviceGroups.length === 0 ? (
+          <Alert variant="info">No devices found.</Alert>
+        ) : null}
+
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Period</th>
+              <th>Number of Devices</th>
+              <th>Budget Limit (kWh)</th>
+              <th>Energy Usage (kWh)</th>
+              <th>Alerts</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {budgets.map((budget, index) => (
+              <tr key={budget._id || index}>
+                <td>{index + 1}</td>
+                <td>{new Date(budget.period).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</td>
+                <td>{deviceGroups.find(group => group.label === formatDateGroup(budget.period))?.count || 0}</td>
+                <td>{budget.energyLimit}</td>
+                <td>{totalEnergyUsage || 0}</td>
+                <td className="text-center">
+                  {budget.alerts ? (
+                    <FaCheckCircle className="text-success" title="Enabled" />
+                  ) : (
+                    <FaTimesCircle className="text-danger" title="Disabled" />
+                  )}
+                </td>
+                <td>
+                  <div className="d-flex gap-2">
+                    <Button
+                      variant="outline-primary"
+                      onClick={() => handleEditModal(budget._id)}
+                      size="sm"
+                      disabled={loading}
+                    >
+                      <FaEdit className="me-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline-danger"
+                      onClick={() => handleDeleteBudget(budget._id)}
+                      size="sm"
+                      disabled={loading}
+                    >
+                      <FaTrashAlt className="me-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {budgets.map((budget, index) => (
-                <tr key={budget._id || index}>
-                  <td>{index + 1}</td>
-                  <td>{new Date(budget.period).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</td>
-                  <td>{totalDevices}</td>
-                  <td>{budget.energyLimit}</td>
-                  <td>{totalEnergyUsage || 0}</td>
-                  <td className="text-center">
-                    {budget.alerts ? (
-                      <FaCheckCircle className="text-success" title="Enabled" />
-                    ) : (
-                      <FaTimesCircle className="text-danger" title="Disabled" />
-                    )}
-                  </td>
-                  <td>
-                    <div className="d-flex gap-2">
-                      <Button
-                        variant="outline-primary"
-                        onClick={() => handleEditModal(budget._id)}
-                        size="sm"
-                        disabled={loading}
-                      >
-                        <FaEdit className="me-1" />
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outline-danger"
-                        onClick={() => handleDeleteBudget(budget._id)}
-                        size="sm"
-                        disabled={loading}
-                      >
-                        <FaTrashAlt className="me-1" />
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
+            ))}
+          </tbody>
+        </Table>
       </Container>
     </>
   );

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Spinner, Alert, Button } from "react-bootstrap";
 import PropTypes from "prop-types";
 import { FaPlus, FaEdit, FaTrashAlt, FaBolt } from "react-icons/fa";
@@ -8,14 +8,14 @@ import useAuth from '../../hooks/useAuth';
 
 const DevicePage = () => {
   const { userId } = useAuth();
-  const [showModal, setShowModal] = useState(false);
   const [devices, setDevices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deviceToEdit, setDeviceToEdit] = useState(null);
   const [updatingEnergy, setUpdatingEnergy] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
-  // Fetch devices from the server
+  // Fetch devices for the user
   const fetchDevices = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -23,10 +23,10 @@ const DevicePage = () => {
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       setDevices(data?.devices || []);
-      setError(null); // Clear any previous errors
+      setError(null);
     } catch (err) {
       setError(err.message);
-      setDevices([]); // Reset devices on error
+      setDevices([]);
     } finally {
       setIsLoading(false);
     }
@@ -41,10 +41,10 @@ const DevicePage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setDeviceToEdit(null);
-    setError(null); // Clear any errors when closing modal
+    setError(null); // Clear error when closing modal
   };
 
-  // Add Device Handler
+  // Add device
   const handleAddDevice = async (e, formData) => {
     e.preventDefault();
     try {
@@ -55,18 +55,16 @@ const DevicePage = () => {
       });
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add device");
-      }
-      // Refetch devices after successful form submission
-      await fetchDevices();
+      if (!response.ok) throw new Error(data.message || "Failed to add device");
+
+      await fetchDevices(); // Refresh devices list
       handleCloseModal();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Edit Device Handler
+  // Edit device
   const handleEditDeviceSubmit = async (e, formData) => {
     e.preventDefault();
     if (!deviceToEdit?._id) return;
@@ -82,18 +80,16 @@ const DevicePage = () => {
       );
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update device");
-      }
-      // Refetch devices after successful form submission
-      await fetchDevices(); // Fetch updated devices
+      if (!response.ok) throw new Error(data.message || "Failed to update device");
+
+      await fetchDevices(); // Refresh devices list
       handleCloseModal();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Optimistic UI Update for Energy Usage Handler
+  // Update energy usage with optimistic UI
   const handleUpdateEnergyUsage = async (deviceId) => {
     if (!deviceId || updatingEnergy === deviceId) return;
 
@@ -101,37 +97,30 @@ const DevicePage = () => {
       setUpdatingEnergy(deviceId);
       setError(null);
 
-      // Optimistically update the energy usage
+      // Optimistic UI update
       setDevices((prevDevices) =>
         prevDevices.map((device) =>
           device._id === deviceId
-            ? { ...device, energyUsage: device.energyUsage + 0.5 } // Sample optimistic change
+            ? { ...device, energyUsage: device.energyUsage + 0.5 }
             : device
         )
       );
 
       const response = await fetch(
         `http://localhost:5000/api/devices/${userId}/${deviceId}/energy-usage`,
-        { 
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-        }
+        { method: "PUT", headers: { "Content-Type": "application/json" } }
       );
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update energy usage");
-      }
+      if (!response.ok) throw new Error(data.message || "Failed to update energy usage");
 
-      // Refetch devices after updating energy usage
-      await fetchDevices(); // Fetch updated devices after successful energy update
+      await fetchDevices(); // Refresh devices list after updating
     } catch (err) {
       setError(err.message);
-      // Revert optimistic update in case of error
       setDevices((prevDevices) =>
         prevDevices.map((device) =>
           device._id === deviceId
-            ? { ...device, energyUsage: device.energyUsage - 0.5 } // Revert optimistic change
+            ? { ...device, energyUsage: device.energyUsage - 0.5 }
             : device
         )
       );
@@ -140,18 +129,7 @@ const DevicePage = () => {
     }
   };
 
-  // lets use setInterval to update the energy usage every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      devices.forEach((device) => {
-        handleUpdateEnergyUsage(device._id);
-      });
-    }, 60000); // 1 minute = 60000 ms
-
-    return () => clearInterval(interval);
-  }, [devices]);
-
-  // Delete Device Handler
+  // Delete device
   const handleDeleteDevice = async (deviceId) => {
     if (!deviceId || !window.confirm("Are you sure you want to delete this device?")) return;
 
@@ -162,31 +140,29 @@ const DevicePage = () => {
       );
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete device");
-      }
+      if (!response.ok) throw new Error(data.message || "Failed to delete device");
 
-      // Refetch devices after successful deletion
-      await fetchDevices(); // Fetch updated devices
+      await fetchDevices(); // Refresh devices list after deletion
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // Initialize Devices Fetch
+  // UseEffect to initialize device fetch and periodic refetch
   useEffect(() => {
-    fetchDevices(); // Fetch devices on page load
+    fetchDevices(); // Fetch devices initially
 
-    // Set interval to refetch devices every hour
-    const interval = setInterval(fetchDevices, 60000); // 1 minute = 60000 ms
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(interval);
+    const interval = setInterval(fetchDevices, 60000); // Refetch every minute
+    return () => clearInterval(interval); // Cleanup interval on component unmount
   }, [fetchDevices]);
 
   return (
     <div className="container mt-4">
-      {error && <Alert variant="danger" className="mb-3" dismissible onClose={() => setError(null)}>{error}</Alert>}
+      {error && (
+        <Alert variant="danger" className="mb-3" dismissible onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
 
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Your Devices</h2>
@@ -256,13 +232,7 @@ const DevicePage = () => {
                           disabled={updatingEnergy === device._id}
                         >
                           {updatingEnergy === device._id ? (
-                            <Spinner 
-                              as="span" 
-                              animation="border" 
-                              size="sm" 
-                              role="status" 
-                              aria-hidden="true"
-                            />
+                            <Spinner animation="border" size="sm" role="status" aria-hidden="true" />
                           ) : (
                             <FaBolt />
                           )}
@@ -280,11 +250,11 @@ const DevicePage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center py-5">
+                  <td colSpan="7" className="text-center py-5">
                     <div className="text-muted">
                       <FaBolt className="h2 mb-3" />
                       <h4>No devices found</h4>
-                      <p>Click the &quot;Add New Device&quot; button to get started</p>
+                      <p>Click the Add New Device button to get started</p>
                     </div>
                   </td>
                 </tr>

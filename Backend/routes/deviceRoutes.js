@@ -7,7 +7,8 @@ const {
     deleteDeviceById,
     updateDeviceById,
     updateEnergyUsage,
-    logDeviceEnergyUsage
+    logDeviceEnergyUsage,
+    getDevicesByDate
 } = require("../controller/deviceController");
 const userAuthentication = require("../Middleware/userAuthentication");
 const { deviceAuthorization, userDeviseAuthentication } = require("../Middleware/deviceAuthorization");
@@ -17,6 +18,9 @@ router.post("/create",  createDevices);
 
 // Route to get all devices for a specific user
 router.get("/:userId",getAllDevicesByUser);
+
+// Route to get all devices for a specific user based on date eg February 2025
+router.get("/:userId/:date",getDevicesByDate);
 
 // Route to get a specific device by ID for a specific user
 router.get("/:userId/:deviceId",getDeviceById);

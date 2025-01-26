@@ -49,7 +49,27 @@ exports.getAllDevicesByUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch devices", error });
     }
-};
+}
+// function to get all devices for a specific user based on date (e.g., February 2025)
+exports.getDevicesByDate = async (req, res) => {
+    try {
+      const { userId, date } = req.params;
+      const startDate = new Date(date);
+      const endDate = new Date(startDate);
+      endDate.setMonth(startDate.getMonth() + 1); // Next month, same day, for the range
+      
+      // Find all devices for the user where createdAt is within the selected month
+      const devices = await Device.find({
+        userId,
+        createdAt: { $gte: startDate, $lt: endDate }
+      });
+  
+      res.status(200).json({ totalDevices: devices.length });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch devices", error });
+    }
+  };
+   
 
 
 // Function to get a specific device by ID for a specific user

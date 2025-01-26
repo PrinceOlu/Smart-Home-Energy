@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { Modal, Form, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import useAuth from '../../hooks/useAuth';
@@ -10,7 +10,7 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
     type: '',
     status: '',
     powerRating: '',
-      });
+  });
 
   const handleChange = (e) => {
     setFormData({
@@ -26,11 +26,12 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
   if (!userId) {
     return <p>Redirecting to login...</p>;
   }
-// handle form submission
-const handleFormSubmit = (e) => {
-  e.preventDefault();
-  handleSubmit(e, formData);
-}
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    handleSubmit(e, formData);
+  };
+
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
@@ -50,19 +51,18 @@ const handleFormSubmit = (e) => {
             />
           </Form.Group>
 
-          
-              <Form.Group controlId="formDevicePowerRating" className="mb-3">
-                <Form.Label>Device Power Rating</Form.Label>
-                <Form.Control
-                  type="number"
-                  placeholder="Enter device power rating"
-                  name="powerRating"
-                  value={formData.powerRating}
-                  onChange={handleChange}
-                  required
-                />
-              </Form.Group>
-             
+          <Form.Group controlId="formDevicePowerRating" className="mb-3">
+            <Form.Label>Device Power Rating</Form.Label>
+            <Form.Control
+              type="number"
+              placeholder="Enter device power rating"
+              name="powerRating"
+              value={formData.powerRating}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
+
           <Form.Group controlId="formDeviceStatus" className="mb-3">
             <Form.Label>Device Status</Form.Label>
             <Form.Control
