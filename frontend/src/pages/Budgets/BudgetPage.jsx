@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Spinner,
@@ -27,116 +26,119 @@ const formatDateGroup = (date) => {
       month: "long",
       year: "numeric",
     });
-  } catch (error) {
-    console.error("Date formatting error:", error);
+  } catch {
     return "Invalid Date";
   }
 };
 
 const BudgetPage = () => {
-  const { userId, isLoading } = useAuth();
+  const { userId, isLoading: authLoading } = useAuth();
   const [budgets, setBudgets] = useState([]);
   const [totalEnergyUsage, setTotalEnergyUsage] = useState(0);
   const [totalDevices, setTotalDevices] = useState(0);
-  const [error, setError] = useState(null);
+  const [deviceGroups, setDeviceGroups] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [budgetIdToEdit, setBudgetIdToEdit] = useState(null);
-  const [deviceGroups, setDeviceGroups] = useState([]);
 
-  const fetchEnergyUsageData = async () => {
+  const apiBaseUrl = "http://localhost:5000/api";
+
+  const fetchEnergyUsageByPeriod = useCallback(async (period) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/energy-usage/${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch energy usage data");
+      const periodDate = new Date(period).toISOString().slice(0, 7);
+      const response = await fetch(`${apiBaseUrl}/energy-usage/${userId}/${periodDate}`);
+      
+      if (!response.ok) throw new Error("Failed to fetch energy usage data.");
+      
       const data = await response.json();
-      setTotalEnergyUsage(data.totalEnergyUsage || 0);
-      setTotalDevices(data.devices || 0);
-      setError(null);
+      return data.totalEnergyUsage || 0;
+    } catch (err) {
+      console.error(err);
+      return 0;
+    }
+  }, [userId, apiBaseUrl]);
+
+  const fetchBudgetsWithEnergyUsage = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${apiBaseUrl}/budgets/${userId}`);
+      if (!response.ok) throw new Error("Failed to fetch budgets.");
+      
+      const data = await response.json();
+      
+      const budgetsWithUsage = await Promise.all(
+        data.budgets.map(async (budget) => ({
+          ...budget,
+          energyUsage: await fetchEnergyUsageByPeriod(budget.period)
+        }))
+      );
+
+      setBudgets(budgetsWithUsage);
+      setTotalEnergyUsage(
+        budgetsWithUsage.reduce((sum, budget) => sum + budget.energyUsage, 0)
+      );
     } catch (err) {
       setError(err.message);
-      setTotalEnergyUsage(0);
-      setTotalDevices(0);
-    }
-  };
-
-  const fetchBudgets = async () => {
-    if (!userId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(`http://localhost:5000/api/budgets/${userId}`);
-      if (!response.ok) throw new Error("Failed to fetch budgets.");
-      const data = await response.json();
-      setBudgets(data.budgets || []);
-    } catch (err) {
-      setError(err.message || "Failed to fetch budgets.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, fetchEnergyUsageByPeriod]);
 
-  const fetchDevices = async () => {
-    if (!userId) return;
+  const fetchDevices = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/devices/${userId}`);
+      const response = await fetch(`${apiBaseUrl}/devices/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch devices.");
+      
       const data = await response.json();
+      setTotalDevices(data.devices.length);
 
-      // Group devices by month/year
       const groupedDevices = data.devices.reduce((acc, device) => {
-        if (!device?.createdAt) return acc;
+        const date = new Date(device?.createdAt);
+        if (isNaN(date)) return acc;
 
-        const date = new Date(device.createdAt);
-        if (isNaN(date.getTime())) return acc;
-
-        const monthYear = formatDateGroup(date);
-
-        if (!acc[monthYear]) {
-          acc[monthYear] = {
-            label: monthYear,
+        const groupKey = formatDateGroup(date);
+        if (!acc[groupKey]) {
+          acc[groupKey] = {
+            label: groupKey,
             date: device.createdAt,
             count: 0,
-            devices: [],
             totalPower: 0,
           };
         }
-
-        acc[monthYear].count += 1;
-        acc[monthYear].devices.push(device._id);
-        acc[monthYear].totalPower += device.powerRating || 0;
+        acc[groupKey].count += 1;
+        acc[groupKey].totalPower += device.powerRating || 0;
 
         return acc;
       }, {});
 
-      const sortedGroups = Object.values(groupedDevices).sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
+      setDeviceGroups(
+        Object.values(groupedDevices).sort((a, b) => 
+          new Date(b.date) - new Date(a.date)
+        )
       );
-
-      setDeviceGroups(sortedGroups);
-      setTotalDevices(data.totalDevices || 0);
     } catch (err) {
-      setError(err.message || "Failed to fetch devices.");
-    }
-  };
-
-  useEffect(() => {
-    if (userId) {
-      fetchEnergyUsageData();
-      fetchDevices();
-      fetchBudgets();
+      setError(err.message);
     }
   }, [userId]);
 
-  const handleAddModal = () => {
-    setShowAddModal(true);
-    setError(null);
-  };
+  const fetchData = useCallback(async () => {
+    if (userId) {
+      setError(null);
+      await Promise.all([fetchDevices(), fetchBudgetsWithEnergyUsage()]);
+    }
+  }, [userId, fetchDevices, fetchBudgetsWithEnergyUsage]);
 
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleAddModal = () => setShowAddModal(true);
+  
   const handleEditModal = (budgetId) => {
     setBudgetIdToEdit(budgetId);
     setShowEditModal(true);
-    setError(null);
   };
 
   const handleCloseModals = () => {
@@ -148,19 +150,19 @@ const BudgetPage = () => {
   const handleDeleteBudget = async (budgetId) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/budgets/${userId}/${budgetId}`, {
+      const response = await fetch(`${apiBaseUrl}/budgets/${userId}/${budgetId}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete budget.");
-      await fetchBudgets();
+      await fetchBudgetsWithEnergyUsage();
     } catch (err) {
-      setError(err.message || "Failed to delete budget.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (isLoading) {
+  if (authLoading) {
     return (
       <Container className="text-center mt-5">
         <Spinner animation="border" variant="primary" />
@@ -199,10 +201,18 @@ const BudgetPage = () => {
           </Alert>
         )}
 
-        <BudgetDashboard budgets={budgets} totalEnergyUsage={totalEnergyUsage} totalDevices={totalDevices} />
+        <BudgetDashboard 
+          budgets={budgets} 
+          totalEnergyUsage={totalEnergyUsage} 
+          totalDevices={totalDevices} 
+        />
 
         <AddBudgetModal show={showAddModal} handleClose={handleCloseModals} />
-        <EditBudgetModal show={showEditModal} handleClose={handleCloseModals} budgetId={budgetIdToEdit || ""} />
+        <EditBudgetModal 
+          show={showEditModal} 
+          handleClose={handleCloseModals} 
+          budgetId={budgetIdToEdit} 
+        />
 
         {loading ? (
           <div className="text-center mt-5">
@@ -211,61 +221,66 @@ const BudgetPage = () => {
           </div>
         ) : deviceGroups.length === 0 ? (
           <Alert variant="info">No devices found.</Alert>
-        ) : null}
-
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Period</th>
-              <th>Number of Devices</th>
-              <th>Budget Limit (kWh)</th>
-              <th>Energy Usage (kWh)</th>
-              <th>Alerts</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {budgets.map((budget, index) => (
-              <tr key={budget._id || index}>
-                <td>{index + 1}</td>
-                <td>{new Date(budget.period).toLocaleDateString("en-US", { year: "numeric", month: "long" })}</td>
-                <td>{deviceGroups.find(group => group.label === formatDateGroup(budget.period))?.count || 0}</td>
-                <td>{budget.energyLimit}</td>
-                <td>{totalEnergyUsage || 0}</td>
-                <td className="text-center">
-                  {budget.alerts ? (
-                    <FaCheckCircle className="text-success" title="Enabled" />
-                  ) : (
-                    <FaTimesCircle className="text-danger" title="Disabled" />
-                  )}
-                </td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <Button
-                      variant="outline-primary"
-                      onClick={() => handleEditModal(budget._id)}
-                      size="sm"
-                      disabled={loading}
-                    >
-                      <FaEdit className="me-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline-danger"
-                      onClick={() => handleDeleteBudget(budget._id)}
-                      size="sm"
-                      disabled={loading}
-                    >
-                      <FaTrashAlt className="me-1" />
-                      Delete
-                    </Button>
-                  </div>
-                </td>
+        ) : (
+          <Table striped bordered hover responsive>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Period</th>
+                <th>Number of Devices</th>
+                <th>Budget Limit (kWh)</th>
+                <th>Energy Usage (kWh)</th>
+                <th>Alerts</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {budgets.map((budget, index) => {
+                const group = deviceGroups.find((g) => 
+                  g.label === formatDateGroup(budget.period)
+                );
+                return (
+                  <tr key={budget._id || index}>
+                    <td>{index + 1}</td>
+                    <td>{formatDateGroup(budget.period)}</td>
+                    <td>{group?.count || 0}</td>
+                    <td>{budget.energyLimit}</td>
+                    <td>{budget.energyUsage}</td>
+                    <td className="text-center">
+                      {budget.energyUsage <= budget.energyLimit ? (
+                        <FaCheckCircle className="text-success" />
+                      ) : (
+                        <FaTimesCircle className="text-danger" />
+                      )}
+                    </td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <Button
+                          variant="outline-primary"
+                          onClick={() => handleEditModal(budget._id)}
+                          size="sm"
+                          disabled={loading}
+                        >
+                          <FaEdit className="me-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          onClick={() => handleDeleteBudget(budget._id)}
+                          size="sm"
+                          disabled={loading}
+                        >
+                          <FaTrashAlt className="me-1" />
+                          Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        )}
       </Container>
     </>
   );
