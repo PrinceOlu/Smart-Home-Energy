@@ -27,19 +27,19 @@ const HomePage = () => {
     try {
       setIsLoading(true);
       setServerError(null); // Reset server error state
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch('http://localhost:5000/api/users/login', { // Use load balancer URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
       });
-
+  
       if (response.ok) {
         const userData = await response.json();
         localStorage.setItem('userId', userData.userId);
         navigate('/dashboard');
-              } else {
+      } else {
         const errorData = await response.json();
         setServerError(errorData.message);
       }
@@ -50,6 +50,7 @@ const HomePage = () => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <Container fluid className="vh-100 bg-light">
