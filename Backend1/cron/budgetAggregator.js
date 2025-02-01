@@ -2,8 +2,8 @@ const cron = require("node-cron");
 const Device = require("../models/deviceModel");
 const Budget = require("../models/budgetModel");
 
-// Schedule the cron job to run at midnight every day
-cron.schedule("0 * * * *", async () =>  {
+// Schedule the cron job to run at 1mins every day
+cron.schedule("*/1 * * * *", async () =>  {
   console.log("Running budget aggregation job...");
 
   try {

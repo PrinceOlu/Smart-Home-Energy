@@ -7,7 +7,6 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
   const { userId, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
-    type: '',
     status: '',
     powerRating: '',
   });
@@ -83,7 +82,7 @@ const AddDeviceModal = ({ show, handleClose, handleSubmit }) => {
               Close
             </Button>
             <Button variant="primary" type="submit">
-              Save Changes
+              Save
             </Button>
           </div>
         </Form>

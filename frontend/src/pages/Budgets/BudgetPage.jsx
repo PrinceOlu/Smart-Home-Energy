@@ -58,7 +58,7 @@ const BudgetPage = () => {
       console.error(err);
       return 0;
     }
-  }, [userId, apiBaseUrl]);
+  }, [userId]);
 
   const fetchBudgetsWithEnergyUsage = useCallback(async () => {
     try {
@@ -134,26 +134,99 @@ const BudgetPage = () => {
     fetchData();
   }, [fetchData]);
 
-  const handleAddModal = () => setShowAddModal(true);
-  
+  // Modal and form handlers
+  const handleAddModal = () => {
+    setError(null);
+    setShowAddModal(true);
+  };
+
+  const handleAddBudgetSubmit = async (formData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${apiBaseUrl}/budgets/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          userId,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to create budget');
+
+      // Refresh data after successful creation
+      await Promise.all([
+        fetchBudgetsWithEnergyUsage(),
+        fetchDevices(),
+      ]);
+
+      handleCloseModals();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditBudgetSubmit = async (formData) => {
+    if (!budgetIdToEdit) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`${apiBaseUrl}/budgets/${userId}/${budgetIdToEdit}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to update budget');
+
+      await fetchBudgetsWithEnergyUsage();
+      handleCloseModals();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEditModal = (budgetId) => {
     setBudgetIdToEdit(budgetId);
     setShowEditModal(true);
+    setError(null);
   };
 
   const handleCloseModals = () => {
     setShowAddModal(false);
     setShowEditModal(false);
     setBudgetIdToEdit(null);
+    setError(null);
   };
 
   const handleDeleteBudget = async (budgetId) => {
+    if (!window.confirm("Are you sure you want to delete this budget?")) return;
+
     try {
       setLoading(true);
+      setError(null);
+
       const response = await fetch(`${apiBaseUrl}/budgets/${userId}/${budgetId}`, {
         method: "DELETE",
       });
-      if (!response.ok) throw new Error("Failed to delete budget.");
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to delete budget.");
+
       await fetchBudgetsWithEnergyUsage();
     } catch (err) {
       setError(err.message);
@@ -207,11 +280,18 @@ const BudgetPage = () => {
           totalDevices={totalDevices} 
         />
 
-        <AddBudgetModal show={showAddModal} handleClose={handleCloseModals} />
+        <AddBudgetModal 
+          show={showAddModal} 
+          handleClose={handleCloseModals} 
+          handleSubmit={handleAddBudgetSubmit}
+          loading={loading}
+        />
         <EditBudgetModal 
           show={showEditModal} 
           handleClose={handleCloseModals} 
+          handleSubmit={handleEditBudgetSubmit}
           budgetId={budgetIdToEdit} 
+          loading={loading}
         />
 
         {loading ? (

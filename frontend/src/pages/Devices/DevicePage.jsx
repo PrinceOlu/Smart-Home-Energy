@@ -41,7 +41,7 @@ const DevicePage = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setDeviceToEdit(null);
-    setError(null); // Clear error when closing modal
+    setError(null);
   };
 
   // Add device
@@ -57,7 +57,7 @@ const DevicePage = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to add device");
 
-      await fetchDevices(); // Refresh devices list
+      await fetchDevices();
       handleCloseModal();
     } catch (err) {
       setError(err.message);
@@ -82,7 +82,7 @@ const DevicePage = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to update device");
 
-      await fetchDevices(); // Refresh devices list
+      await fetchDevices();
       handleCloseModal();
     } catch (err) {
       setError(err.message);
@@ -90,7 +90,7 @@ const DevicePage = () => {
   };
 
   // Update energy usage with optimistic UI
-  const handleUpdateEnergyUsage = async (deviceId) => {
+  const handleUpdateEnergyUsage = useCallback(async (deviceId) => {
     if (!deviceId || updatingEnergy === deviceId) return;
 
     try {
@@ -114,7 +114,7 @@ const DevicePage = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to update energy usage");
 
-      await fetchDevices(); // Refresh devices list after updating
+      await fetchDevices();
     } catch (err) {
       setError(err.message);
       setDevices((prevDevices) =>
@@ -127,7 +127,7 @@ const DevicePage = () => {
     } finally {
       setUpdatingEnergy(null);
     }
-  };
+  }, [userId, updatingEnergy, fetchDevices]);
 
   // Delete device
   const handleDeleteDevice = async (deviceId) => {
@@ -142,19 +142,32 @@ const DevicePage = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to delete device");
 
-      await fetchDevices(); // Refresh devices list after deletion
+      await fetchDevices();
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // UseEffect to initialize device fetch and periodic refetch
-  useEffect(() => {
-    fetchDevices(); // Fetch devices initially
+  // Periodic update function
+  const updateAllDevicesEnergy = useCallback(() => {
+    devices.forEach(device => {
+      handleUpdateEnergyUsage(device._id);
+    });
+  }, [devices, handleUpdateEnergyUsage]);
 
-    const interval = setInterval(fetchDevices, 60000); // Refetch every minute
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+  // Initial fetch
+  useEffect(() => {
+    fetchDevices();
   }, [fetchDevices]);
+
+  // Periodic updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      updateAllDevicesEnergy();
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [updateAllDevicesEnergy]);
 
   return (
     <div className="container mt-4">
@@ -225,7 +238,7 @@ const DevicePage = () => {
                         >
                           <FaEdit />
                         </Button>
-                        <Button
+                        {/* <Button
                           variant="info"
                           className="me-2"
                           onClick={() => handleUpdateEnergyUsage(device._id)}
@@ -236,7 +249,7 @@ const DevicePage = () => {
                           ) : (
                             <FaBolt />
                           )}
-                        </Button>
+                        </Button> */}
                         <Button
                           variant="danger"
                           onClick={() => handleDeleteDevice(device._id)}

@@ -9,11 +9,13 @@ const useAuth = () => {
   useEffect(() => {
     const checkAuthentication = async () => {
       try {
+        // Check if the user is already authenticated
         let currentUserId = localStorage.getItem('userId');
         if (!currentUserId) {
           const response = await fetch('http://localhost:5000/api/auth/session', {
             credentials: 'include',
           });
+          // If the user is not authenticated, redirect to the login page
           if (response.ok) {
             const data = await response.json();
             currentUserId = data.userId;
@@ -23,6 +25,7 @@ const useAuth = () => {
             return;
           }
         }
+        // Set the user ID
         setUserId(currentUserId);
       } catch (error) {
         console.error('Authentication failed:', error);

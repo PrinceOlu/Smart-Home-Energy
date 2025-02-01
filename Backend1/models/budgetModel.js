@@ -22,7 +22,7 @@ const budgetSchema = new mongoose.Schema(
             min: 0,
         },
         alerts: {
-            type: Boolean,  // Changed from array of enums to simple boolean
+            type: Boolean,  
             default: false
         },
         status: {

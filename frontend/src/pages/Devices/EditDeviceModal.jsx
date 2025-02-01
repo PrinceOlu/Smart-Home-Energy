@@ -7,21 +7,18 @@ const EditDeviceModal = ({ show, handleClose, handleSubmit, deviceToEdit }) => {
   const { userId, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
-    type: '',
     status: '',
     powerRating: '',
-    energyUsage: '',
-  });
+     });
 
-
+//  use useEffect to update formData when deviceToEdit changes
   useEffect(() => {
     if (deviceToEdit) {
       setFormData({
         name: deviceToEdit.name,
-        type: deviceToEdit.type,
         status: deviceToEdit.status,
         powerRating: deviceToEdit.powerRating,
-        energyUsage: deviceToEdit.energyUsage,
+        
       });
     }
   }, [deviceToEdit]);

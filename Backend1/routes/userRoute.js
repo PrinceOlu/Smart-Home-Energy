@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const userController = require("../controller/userController");
+const { registerUser, loginUser, logoutUser } = require("../controller/userController");
 const userAuthentication = require("../Middleware/userAuthentication");
 
 // Public routes (no authentication required)
-router.post("/register", userController.registerUser);
-router.post("/login", userController.loginUser);
+router.post("/register", registerUser);
+router.post("/login", loginUser);
 
 // Protected routes (authentication required)
-router.delete("/logout", userAuthentication, userController.logoutUser);
+router.delete("/logout", userAuthentication, logoutUser);
 
 module.exports = router;
