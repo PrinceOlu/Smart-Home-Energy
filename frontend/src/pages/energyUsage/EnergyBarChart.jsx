@@ -17,7 +17,7 @@ ChartJS.register(
   BarElement,
   CategoryScale,
   LinearScale
-);
+); 
 
 export default function EnergyChart({ data, height = 300 }) {
   // Handle missing or invalid data

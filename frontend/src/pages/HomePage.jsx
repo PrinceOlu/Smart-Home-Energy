@@ -27,7 +27,7 @@ const HomePage = () => {
     try {
       setIsLoading(true);
       setServerError(null); // Reset server error state
-      const response = await fetch('http://localhost:5000/api/users/login', { // Use load balancer URL
+      const response = await fetch('http://localhost:80/api/users/login', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

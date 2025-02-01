@@ -12,7 +12,7 @@ const useAuth = () => {
         // Check if the user is already authenticated
         let currentUserId = localStorage.getItem('userId');
         if (!currentUserId) {
-          const response = await fetch('http://localhost:5000/api/auth/session', {
+          const response = await fetch('http://localhost:80/api/auth/session', {
             credentials: 'include',
           });
           // If the user is not authenticated, redirect to the login page

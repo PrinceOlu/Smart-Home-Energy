@@ -43,7 +43,7 @@ const BudgetPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [budgetIdToEdit, setBudgetIdToEdit] = useState(null);
 
-  const apiBaseUrl = "http://localhost:5000/api";
+  const apiBaseUrl = "http://localhost:80/api";
 
   const fetchEnergyUsageByPeriod = useCallback(async (period) => {
     try {

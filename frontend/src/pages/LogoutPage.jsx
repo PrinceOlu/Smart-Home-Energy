@@ -7,7 +7,7 @@ function Logout() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/logout', {
+      const response = await fetch('http://localhost:80/api/users/logout', {
         method: 'POST',
         credentials: 'include', // Ensures cookies are sent with the request
       });

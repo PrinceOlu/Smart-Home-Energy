@@ -15,7 +15,7 @@ const EnergyUsageDashboard = () => {
   // Fetch energy usage data from the server
   const fetchEnergyUsageData = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/energy-usage/${userId}`);
+      const response = await fetch(`http://localhost:80/api/energy-usage/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch energy usage data");
       const data = await response.json();
 

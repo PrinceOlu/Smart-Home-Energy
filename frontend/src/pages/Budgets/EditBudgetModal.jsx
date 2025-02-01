@@ -55,7 +55,7 @@ const EditBudgetModal = ({ show, handleClose, onBudgetUpdated, budgetId = "", in
       setStatus((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
-        const response = await fetch(`http://localhost:5000/api/devices/${userId}`, {
+        const response = await fetch(`http://localhost:80/api/devices/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ const EditBudgetModal = ({ show, handleClose, onBudgetUpdated, budgetId = "", in
 
   const saveBudget = async (budgetData) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/budgets/${userId}/${budgetId}`, {
+      const response = await fetch(`http://localhost:80/api/budgets/${userId}/${budgetId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

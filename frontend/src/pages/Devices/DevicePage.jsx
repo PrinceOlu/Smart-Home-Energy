@@ -19,7 +19,7 @@ const DevicePage = () => {
   const fetchDevices = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/devices/${userId}`);
+      const response = await fetch(`http://localhost:80/api/devices/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch devices");
       const data = await response.json();
       setDevices(data?.devices || []);
@@ -48,7 +48,7 @@ const DevicePage = () => {
   const handleAddDevice = async (e, formData) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/devices/create", {
+      const response = await fetch("http://localhost:80/api/devices/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, userId }),
@@ -71,7 +71,7 @@ const DevicePage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/devices/${userId}/${deviceToEdit._id}`,
+        `http://localhost:80/api/devices/${userId}/${deviceToEdit._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -107,7 +107,7 @@ const DevicePage = () => {
       );
 
       const response = await fetch(
-        `http://localhost:5000/api/devices/${userId}/${deviceId}/energy-usage`,
+        `http://localhost:80/api/devices/${userId}/${deviceId}/energy-usage`,
         { method: "PUT", headers: { "Content-Type": "application/json" } }
       );
 
@@ -135,7 +135,7 @@ const DevicePage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/devices/${userId}/${deviceId}`,
+        `http://localhost:80/api/devices/${userId}/${deviceId}`,
         { method: "DELETE" }
       );
 
