@@ -1,0 +1,36 @@
+services:
+  backend1:
+    image: node:14
+    container_name: backend-container-1
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5003:5001"  # Change the host port to 5003
+    command: npm start
+    networks:
+      - my-network
+
+  backend2:
+    image: node:14
+    container_name: backend-container-2
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "5004:5002"  # Change the host port to 5004
+    command: npm start
+    networks:
+      - my-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
