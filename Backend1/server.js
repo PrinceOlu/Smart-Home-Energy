@@ -19,7 +19,7 @@ dbConfig();
 
 // Define CORS options
 const corsOptions = {
-    origin: ['http://localhost:5173'], 
+    origin: ['https://main.d3cpw6ob4p5p8.amplifyapp.com/'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
     credentials: true, 
