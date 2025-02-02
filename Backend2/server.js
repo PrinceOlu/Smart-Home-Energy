@@ -1,18 +1,16 @@
 require('dotenv').config(); // Load environment variables
 const express = require("express"); // Import Express
-const app = express(); // Initialize Express app
-const dbConfig = require("./config/dbConfig"); // Import database configuration
-// Import routes
-const userRouter = require("./routes/userRoute");
-const deviceRouter = require("./routes/deviceRoutes");
-const energyUsageRoute = require("./routes/energyUsageRoute");
-const budgetRoute = require('./routes/budgetRoutes');
-// Import middleware
-const cookieParser = require('cookie-parser'); // Import cookie-parser middleware for handling cookies
-const cors = require("cors"); // Import CORS middleware for enabling cross-origin resource sharing
+const path = require("path"); // Import Path module
+const cookieParser = require("cookie-parser"); // Middleware for handling cookies
+const cors = require("cors"); // Middleware for cross-origin resource sharing
 
-// Define the port
-const port = process.env.PORT || 5002;
+const dbConfig = require("./config/dbConfig"); // Import database configuration
+const userRouter = require("./routes/userRoute"); // User routes
+const deviceRouter = require("./routes/deviceRoutes"); // Device routes
+const energyUsageRoute = require("./routes/energyUsageRoute"); // Energy usage routes
+const budgetRoute = require("./routes/budgetRoutes"); // Budget routes
+
+const app = express(); // Initialize Express app
 
 // Database connection
 dbConfig();
@@ -25,25 +23,28 @@ const corsOptions = {
     credentials: true, 
 };
 
-// Apply CORS middleware with options
-app.use(cors(corsOptions));
+// Apply middleware
+app.use(cors(corsOptions)); // Enable CORS
+app.use(express.json()); // Parse JSON requests
+app.use(cookieParser()); // Parse cookies
 
-// Middleware to parse JSON requests and cookies
-app.use(express.json());
-app.use(cookieParser());
-
-// User routes with a base path
+// API routes
 app.use("/api/users", userRouter);
-
-// Device routes
 app.use("/api/devices", deviceRouter);
-
-// Energy usage routes
 app.use("/api/energy-usage", energyUsageRoute);
-
-// Budget routes
 app.use("/api/budgets", budgetRoute);
 
+// Serve static frontend files
+const buildPath = path.join(__dirname, "../frontend/dist"); // Adjusted path
+app.use(express.static(buildPath));
+
+// Handle React routing for all other requests
+app.get("*", (req, res) => {
+    res.sendFile(path.join(buildPath, "index.html"));
+});
+
+// Define the port
+const port = process.env.PORT || 5001;
 
 // Start the server
 app.listen(port, () => {
