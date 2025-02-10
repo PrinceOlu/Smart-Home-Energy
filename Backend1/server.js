@@ -17,7 +17,7 @@ dbConfig();
 
 // Define CORS options
 const corsOptions = {
-    origin: ['http://localhost:5173'], 
+    origin: ['http://localhost:5173','http://3.145.186.234'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
     credentials: true, 
@@ -35,13 +35,13 @@ app.use("/api/energy-usage", energyUsageRoute);
 app.use("/api/budgets", budgetRoute);
 
 // Serve static frontend files
-const buildPath = path.join(__dirname, "../frontend/dist"); // Adjusted path
-app.use(express.static(buildPath));
+// const buildPath = path.join(__dirname, "../frontend/dist"); // Adjusted path
+// app.use(express.static(buildPath));
 
-// Handle React routing for all other requests
-app.get("*", (req, res) => {
-    res.sendFile(path.join(buildPath, "index.html"));
-});
+// // Handle React routing for all other requests
+// app.get("*", (req, res) => {
+//     res.sendFile(path.join(buildPath, "index.html"));
+// });
 
 // Define the port
 const port = process.env.PORT || 5001;

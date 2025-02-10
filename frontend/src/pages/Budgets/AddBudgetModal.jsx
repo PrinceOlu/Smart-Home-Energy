@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Modal, Form, Button, Spinner } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import useAuth from '../../hooks/useAuth';
-
+import { API_BASE_URL } from '../../apiConfig';
 
 const INITIAL_FORM_STATE = {
   period: '',
@@ -51,7 +51,7 @@ const AddBudgetModal = ({ show, handleClose, onBudgetCreated }) => {
       setStatus((prev) => ({ ...prev, loading: true, error: null }));
 
       try {
-        const response = await fetch(`http://localhost:80/api/devices/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/devices/${userId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ const AddBudgetModal = ({ show, handleClose, onBudgetCreated }) => {
 
   const saveBudget = async (budgetData) => {
     try {
-      const response = await fetch('http://localhost:80/api/budgets/create', {
+      const response = await fetch(`${API_BASE_URL}/api/budgets/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

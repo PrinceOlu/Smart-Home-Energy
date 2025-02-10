@@ -107,6 +107,26 @@ const loginUser = async (req, res) => {
     }
 };
 
+// function for user Profile
+const getProfile = async (req, res) => {
+    try {
+        const { userId } = req.params;  // Retrieve userId from the URL parameter
+        
+        // Fetch user data from database and exclude the password field
+        const user = await userModel.findById(userId).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error("Error fetching user profile:", error);  // For debugging
+        res.status(500).json({ message: "Failed to fetch user profile", error });
+    }
+};
+
+
 // Function to logout a user
 const logoutUser = async (req, res) => {
     try {
@@ -132,7 +152,7 @@ const logoutUser = async (req, res) => {
         const { userId } = decoded; 
         const redisKey = `user:${userId}`;
 
-        // Clear the auth_token cookie without using maxAge (as maxAge is deprecated)
+        // Clear the auth_token cookie
         res.clearCookie("auth_token", {
             httpOnly: true, 
              // Optional, for HTTPS only
@@ -152,4 +172,4 @@ const logoutUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, logoutUser };
+module.exports = { registerUser, loginUser, logoutUser, getProfile };

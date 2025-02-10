@@ -3,6 +3,7 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import useAuth from '../../hooks/useAuth';
+import Profile from './Profile';
 function NavBar() {
   const { userId} = useAuth();
   const navigate = useNavigate();
@@ -26,8 +27,12 @@ function NavBar() {
           <Nav.Link onClick={handleLogout} style={{ cursor: 'pointer' }}>
             Logout
           </Nav.Link>
-        </Nav>
+          
+        </Nav> 
+       
+
       </Container>
+      {userId && <Profile userId={userId} />}
     </Navbar>
   );
 }

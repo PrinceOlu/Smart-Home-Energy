@@ -5,9 +5,11 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import '../styles/HomePage.css';
+// import defaultLogo from '../assets/logo.jpg'; 
 import energyImage from '../assets/undraw_wind-turbine_4z2a.svg';
 import { useNavigate } from 'react-router-dom';
-
+import { API_BASE_URL } from '../apiConfig';
+import Footer from '../components/Layout/Footer';
 // Validation schema using Yup
 const schema = Yup.object({
   name: Yup.string().required('Name is required'),
@@ -27,7 +29,7 @@ const SignupPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch('http://localhost:80/api/users/register', {
+      const response = await fetch(`${API_BASE_URL}/api/users/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,27 +50,20 @@ const SignupPage = () => {
   };
 
   return (
-    <Container fluid className="vh-100 bg-light">
-      <Row className="h-100 align-items-center justify-content-center">
-        {/* Left Image */}
-        <Col xs={12} md={6} lg={6} className="d-none d-md-block">
-          <div className="image-container h-100 d-flex justify-content-center align-items-center">
-            <img
-              src={energyImage}
-              alt="Welcome Graphic"
-              className="img-fluid"
-            />
-          </div>
-        </Col>
-
-        {/* Right Form */}
-        <Col
-          xs={12}
-          md={6}
-          lg={4}
-          className="p-4 bg-white rounded shadow-lg d-flex flex-column justify-content-center"
-        >
-          <h2 className="text-center mb-4">Create an Account!</h2>
+    <Container fluid className="vh-100 bg-light d-flex flex-column">
+         <Row className="flex-grow-1 align-items-center justify-content-center">
+           <Col xs={12} md={6} className="d-none d-md-block">
+             <div className="image-container d-flex justify-content-center align-items-center h-100">
+               <img src={energyImage} alt="Welcome Graphic" className="img-fluid" />
+             </div>
+           </Col>
+           
+           <Col xs={12} md={6} lg={4} className="bg-white rounded shadow-lg p-4 text-center">
+             {/* App Name and Logo */}
+             {/* <Image src={defaultLogo} alt="Smart Home Energy Logo" fluid className="mb-3" style={{ maxHeight: '100px' }} /> */}
+             <h2 className="mb-4">Smart Home Energy</h2>
+             
+                   <h4 className="text-center mb-4">Create an Account!</h4>
           <Form onSubmit={handleSubmit(onSubmit)}>
             {/* Name Field with Icon */}
             <Form.Group className="mb-3" controlId="formBasicName">
@@ -151,6 +146,7 @@ const SignupPage = () => {
           </Form>
         </Col>
       </Row>
+      <Footer /> 
     </Container>
   );
 };

@@ -143,7 +143,7 @@ exports.updateEnergyUsage = async (req, res) => {
   
         res.status(200).json({ message: "Energy usage updated successfully" });
       } else {
-        res.status(200).json({ message: "Device is offline, no energy usage to update" });
+        res.status(200).json({ message: "Device is off, no energy usage to update" });
       }
     } catch (error) {
       res.status(500).json({ message: "Failed to update energy usage", error: error.message });

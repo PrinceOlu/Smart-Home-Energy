@@ -5,6 +5,7 @@ import useAuth from "../../hooks/useAuth";
 import NavBar from "../../components/Layout/NavBar";
 import EnergyPieChart from "./EnergyPieChart";
 import EnergyBarChart from "./EnergyBarChart";
+import { API_BASE_URL } from "../../apiConfig";
 
 const EnergyUsageDashboard = () => {
   const { userId, isLoading } = useAuth();
@@ -15,7 +16,7 @@ const EnergyUsageDashboard = () => {
   // Fetch energy usage data from the server
   const fetchEnergyUsageData = async () => {
     try {
-      const response = await fetch(`http://localhost:80/api/energy-usage/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/energy-usage/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch energy usage data");
       const data = await response.json();
 

@@ -18,6 +18,9 @@ import useAuth from "../../hooks/useAuth";
 import NavBar from "../../components/Layout/NavBar";
 import AddBudgetModal from "./AddBudgetModal";
 import EditBudgetModal from "./EditBudgetModal";
+import { API_BASE_URL } from '../../apiConfig';
+
+
 const BudgetDashboard = React.lazy(() => import("./BudgetDashboard"));
 
 const formatDateGroup = (date) => {
@@ -43,17 +46,21 @@ const BudgetPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [budgetIdToEdit, setBudgetIdToEdit] = useState(null);
 
-  const apiBaseUrl = "http://localhost:80/api";
+
 
   const fetchEnergyUsageByPeriod = useCallback(async (period) => {
     try {
+      
+      
       const periodDate = new Date(period).toISOString().slice(0, 7);
-      const response = await fetch(`${apiBaseUrl}/energy-usage/${userId}/${periodDate}`);
+      
+      const response = await fetch(`${API_BASE_URL}/api/energy-usage/${userId}/${periodDate}`);
       
       if (!response.ok) throw new Error("Failed to fetch energy usage data.");
       
       const data = await response.json();
       return data.totalEnergyUsage || 0;
+      
     } catch (err) {
       console.error(err);
       return 0;
@@ -63,7 +70,9 @@ const BudgetPage = () => {
   const fetchBudgetsWithEnergyUsage = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiBaseUrl}/budgets/${userId}`);
+      
+      
+      const response = await fetch(`${API_BASE_URL}/api/budgets/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch budgets.");
       
       const data = await response.json();
@@ -88,7 +97,7 @@ const BudgetPage = () => {
 
   const fetchDevices = useCallback(async () => {
     try {
-      const response = await fetch(`${apiBaseUrl}/devices/${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/devices/${userId}`);
       if (!response.ok) throw new Error("Failed to fetch devices.");
       
       const data = await response.json();
@@ -145,7 +154,7 @@ const BudgetPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${apiBaseUrl}/budgets/create`, {
+      const response = await fetch(`${API_BASE_URL}/api/budgets/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,7 +189,7 @@ const BudgetPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${apiBaseUrl}/budgets/${userId}/${budgetIdToEdit}`, {
+      const response = await fetch(`${API_BASE_URL}/budgets/${userId}/${budgetIdToEdit}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -220,7 +229,7 @@ const BudgetPage = () => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${apiBaseUrl}/budgets/${userId}/${budgetId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/budgets/${userId}/${budgetId}`, {
         method: "DELETE",
       });
 
@@ -280,15 +289,17 @@ const BudgetPage = () => {
           totalDevices={totalDevices} 
         />
 
-        <AddBudgetModal 
-          show={showAddModal} 
-          handleClose={handleCloseModals} 
-          handleSubmit={handleAddBudgetSubmit}
-          loading={loading}
-        />
+<AddBudgetModal 
+  show={showAddModal} 
+  handleClose={handleCloseModals} 
+  handleSubmit={handleAddBudgetSubmit} 
+  onBudgetCreated={fetchBudgetsWithEnergyUsage}
+/>
         <EditBudgetModal 
           show={showEditModal} 
-          handleClose={handleCloseModals} 
+          handleClose={handleCloseModals}
+          onBudgetUpdated={fetchBudgetsWithEnergyUsage}
+          initialBudget={budgets.find(budget => budget._id === budgetIdToEdit)}
           handleSubmit={handleEditBudgetSubmit}
           budgetId={budgetIdToEdit} 
           loading={loading}

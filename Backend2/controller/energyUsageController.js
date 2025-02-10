@@ -28,7 +28,7 @@ const getEnergyUsage = async (req, res) => {
     }
 };
 
-// function to get total energy usage   for a specific user based on date (e.g., February 2025)
+// function to get total energy usage for a specific user based on date (e.g., February 2025)
 const getEnergyUsageByDate = async (req, res) => {
     try {
       const { userId, date } = req.params;

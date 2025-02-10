@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HomePage from './HomePage';
-
+import { API_BASE_URL } from '../apiConfig';
 function Logout() {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:80/api/users/logout', {
+      const response = await fetch(`${API_BASE_URL}/api/users/logout`, {
         method: 'POST',
         credentials: 'include', // Ensures cookies are sent with the request
       });

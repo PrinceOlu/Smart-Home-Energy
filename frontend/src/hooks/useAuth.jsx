@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { API_BASE_URL } from '../apiConfig';
 const useAuth = () => {
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -12,7 +12,7 @@ const useAuth = () => {
         // Check if the user is already authenticated
         let currentUserId = localStorage.getItem('userId');
         if (!currentUserId) {
-          const response = await fetch('http://localhost:80/api/auth/session', {
+          const response = await fetch(`${API_BASE_URL}/api/auth/session`, {
             credentials: 'include',
           });
           // If the user is not authenticated, redirect to the login page

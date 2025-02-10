@@ -3,7 +3,6 @@ const budgetModel = require("../models/budgetModel");
 const userModel = require("../models/userModel");
 const mongoose = require("mongoose");
 const Device = require("../models/deviceModel");
-// const { sendAlertNotification } = require("./notifications"); // Assuming you have a function to send alerts
 
 // Create a new budget
 const createBudget = async (req, res) => {

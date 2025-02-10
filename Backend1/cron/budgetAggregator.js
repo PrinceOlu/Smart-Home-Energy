@@ -2,7 +2,7 @@ const cron = require("node-cron");
 const Device = require("../models/deviceModel");
 const Budget = require("../models/budgetModel");
 
-// Schedule the cron job to run at 1mins every day
+// Schedule the cron job to run at 1min every day
 cron.schedule("*/1 * * * *", async () =>  {
   console.log("Running budget aggregation job...");
 
@@ -35,26 +35,3 @@ cron.schedule("*/1 * * * *", async () =>  {
     console.error("Error in budget aggregation job:", error);
   }
 });
-
-// // Run the cron job every hour
-// cron.schedule("0 * * * *", async () => {
-//     console.log("Cron job started: Updating energy usage...");
-  
-//     try {
-//       const devices = await Device.find(); // Fetch all devices from the database
-      
-//       for (const device of devices) {
-//         // Simulate calling the updateEnergyUsage logic
-//         const req = { params: { userId: device.userId, deviceId: device._id } };
-//         const res = { 
-//           status: (code) => ({ json: (data) => console.log(`Status ${code}:`, data) }),
-//         };
-  
-//         await updateEnergyUsage(req, res);
-//       }
-  
-//       console.log("Energy usage updated successfully for all devices.");
-//     } catch (error) {
-//       console.error("Error running cron job:", error.message);
-//     }
-//   });
