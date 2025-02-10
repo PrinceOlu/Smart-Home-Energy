@@ -17,7 +17,7 @@ dbConfig();
 
 // Define CORS options
 const corsOptions = {
-    origin: ['http://localhost:5173','http://3.145.186.234'], 
+    origin: ['http://localhost:5173','http://18.191.40.152/'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 
     allowedHeaders: ['Content-Type', 'Authorization'], 
     credentials: true, 
